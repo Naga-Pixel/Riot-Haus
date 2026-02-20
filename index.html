@@ -708,25 +708,6 @@
             }
         }
 
-        @media (max-width: 600px) {
-            .constraints-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
-                gap: 8px;
-            }
-
-            .constraint-box {
-                grid-column: 1 !important;
-                grid-row: auto !important;
-            }
-
-            .constraint--infrastructure { order: 1; }
-            .constraint--core { order: 2; }
-            .constraint--latency { order: 3; }
-            .constraint--compliance { order: 4; }
-            .constraint--permissions { order: 5; }
-            .constraint--failure { order: 6; }
-        }
 
         /* Thinking */
         .thinking-list {
@@ -921,14 +902,14 @@
             color: var(--gray-dark);
         }
 
-        /* Responsive */
+        /* Responsive - Tablet */
         @media (max-width: 768px) {
             nav {
-                padding: 20px 24px;
+                padding: 16px 20px;
             }
 
             .nav-links {
-                gap: 20px;
+                gap: 16px;
             }
 
             .nav-links a {
@@ -936,16 +917,31 @@
             }
 
             section {
-                padding: 80px 24px;
+                padding: 60px 20px;
             }
 
             .section-dark {
-                padding: 60px 24px;
+                padding: 50px 20px;
+            }
+
+            .section-dark--systems {
+                padding-bottom: 80px;
+            }
+
+            .section-number {
+                margin-bottom: 32px;
             }
 
             .hero {
-                padding-top: 140px;
-                padding-bottom: 80px;
+                padding-top: 100px;
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-bottom: 60px;
+                min-height: auto;
+            }
+
+            .hero-title {
+                margin-bottom: 32px;
             }
 
             .system-section {
@@ -955,6 +951,10 @@
 
             .system-content {
                 padding-top: 0;
+            }
+
+            .system-description {
+                max-width: 100%;
             }
 
             .architecture-diagram {
@@ -985,14 +985,179 @@
                 max-width: 100%;
             }
 
+            /* Disable tooltips on touch devices */
+            .arch-module[data-tooltip]::after,
+            .constraint-box[data-tooltip]::after {
+                display: none;
+            }
+
+            .thinking-header span:first-child {
+                font-size: 1rem;
+            }
+
+            .capability-header {
+                font-size: 1rem;
+            }
+
             footer {
-                padding: 48px 24px;
+                padding: 40px 20px;
             }
 
             .footer-content {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 24px;
+                gap: 16px;
+            }
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 480px) {
+            nav {
+                padding: 14px 16px;
+            }
+
+            .nav-logo-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 0.9375rem;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+
+            .nav-links a {
+                font-size: 0.6875rem;
+            }
+
+            section {
+                padding: 48px 16px;
+            }
+
+            .section-dark {
+                padding: 40px 16px;
+            }
+
+            .hero {
+                padding-top: 80px;
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-bottom: 48px;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+                margin-bottom: 24px;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .section-text {
+                font-size: 0.9375rem;
+            }
+
+            .system-title {
+                font-size: 2rem;
+            }
+
+            .system-description {
+                font-size: 0.875rem;
+            }
+
+            .architecture-diagram {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+
+            .arch-module {
+                min-height: 60px;
+                padding: 12px 10px;
+            }
+
+            .arch-module--wide,
+            .arch-module--feature {
+                grid-column: span 1;
+            }
+
+            .arch-module--feature {
+                min-height: 80px;
+            }
+
+            .arch-module--feature .arch-module-title {
+                font-size: 1.25rem;
+            }
+
+            .arch-flow {
+                grid-column: span 1;
+                font-size: 0.5rem;
+            }
+
+            .constraints-headline {
+                font-size: 1.5rem;
+            }
+
+            .constraints-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .constraint-box {
+                padding: 14px 10px;
+            }
+
+            .constraint-label {
+                font-size: 0.6875rem;
+            }
+
+            .constraint--core {
+                grid-column: span 2;
+            }
+
+            .thinking-header {
+                padding: 16px 0;
+            }
+
+            .thinking-header span:first-child {
+                font-size: 0.9375rem;
+            }
+
+            .thinking-content {
+                max-height: none;
+            }
+
+            .thinking-item.is-open .thinking-content {
+                max-height: 400px;
+            }
+
+            .thinking-text p {
+                font-size: 0.875rem;
+            }
+
+            .capability-header {
+                padding: 16px 0;
+                font-size: 0.9375rem;
+            }
+
+            .capability-text p {
+                font-size: 0.875rem;
+            }
+
+            .about-text {
+                font-size: 0.9375rem;
+            }
+
+            .about-meta p {
+                font-size: 0.8125rem;
+            }
+
+            footer {
+                padding: 32px 16px;
             }
         }
     </style>
@@ -1485,6 +1650,19 @@
             }
         }
 
+        function onTouch(e) {
+            if (e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+                updatePointer();
+            }
+        }
+
+        function onTouchEnd() {
+            pointer.x = -1000;
+            pointer.y = -1000;
+        }
+
         buildGrid();
         draw();
 
@@ -1492,6 +1670,8 @@
         window.addEventListener('mousemove', onMove, { passive: true });
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('click', onClick);
+        window.addEventListener('touchmove', onTouch, { passive: true });
+        window.addEventListener('touchend', onTouchEnd, { passive: true });
     })();
     </script>
 </body>
