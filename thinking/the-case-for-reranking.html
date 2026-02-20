@@ -49,11 +49,22 @@
         }
 
         .nav-logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--black);
+            color: var(--white);
             font-family: var(--font-headline);
             font-weight: 700;
             font-size: 1rem;
-            color: var(--black);
-            text-decoration: none;
         }
 
         .nav-links {
@@ -133,7 +144,7 @@
 </head>
 <body>
     <nav>
-        <a href="../index.html" class="nav-logo">Riot Haus</a>
+        <a href="../index.html" class="nav-logo"><span class="nav-logo-icon">R</span></a>
         <div class="nav-links">
             <a href="../index.html#systems">Systems</a>
             <a href="../index.html#system-01">System 01</a>
