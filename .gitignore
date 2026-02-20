@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Nested repos
+Riot-Haus/
+
+# Reference images (not part of site)
+5f6e38761ccb6699232404.png
+89f7f28477ac6cc03abe7dd4f52425c8.jpg
+Screenshot*.jpg
+Screenshot*.png
+Untitled*.jpg
+e934ae76-3345-4caa-ae09-fcaeea30d9d4_rw_1920.png
+il_570xN.829318948_10az-1.webp
