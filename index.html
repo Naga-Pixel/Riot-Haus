@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riot Haus — AI Systems Studio</title>
+    <meta name="description" content="Riot Haus is an independent AI systems studio focused on retrieval-first architecture and production deployment.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --gray-light: #e5e5e5;
+            --gray-mid: #888888;
+            --gray-dark: #666666;
+            --font-headline: 'Space Grotesk', sans-serif;
+            --font-body: 'IBM Plex Sans', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--white);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .nav-logo {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--black);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--black);
+            transition: width 0.2s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Sections */
+        section {
+            padding: 120px 48px;
+        }
+
+        .section-light {
+            background: var(--white);
+            color: var(--black);
+        }
+
+        .section-dark {
+            background: var(--dark);
+            color: var(--white);
+            padding: 80px 48px;
+        }
+
+        .section-dark--systems {
+            padding-bottom: 160px;
+        }
+
+        .section-number {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray-mid);
+            margin-bottom: 48px;
+            letter-spacing: 0.02em;
+        }
+
+        .section-dark .section-number {
+            color: var(--gray-dark);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            padding-top: 160px;
+            padding-left: 24px;
+            padding-right: 24px;
+            padding-bottom: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dot-grid {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dot-grid canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: clamp(4.5rem, 15vw, 12rem);
+            line-height: 0.9;
+            margin-bottom: 48px;
+            margin-left: -4px;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: clamp(1.25rem, 2.5vw, 2rem);
+            line-height: 1.3;
+            max-width: 540px;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: clamp(1.75rem, 3vw, 2.25rem);
+            line-height: 1.3;
+            margin-bottom: 32px;
+            max-width: 600px;
+        }
+
+        .section-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 24px;
+        }
+
+        .section-text:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Divider */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: var(--gray-light);
+        }
+
+        .divider-dark {
+            background: #333;
+        }
+
+        /* Capability list / Accordion */
+        .capability-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .capability-item {
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .capability-item:first-child {
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .capability-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--black);
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .capability-header:hover {
+            color: var(--gray-dark);
+        }
+
+        .capability-toggle {
+            font-family: var(--font-body);
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--gray-mid);
+            transition: transform 0.2s ease;
+        }
+
+        .capability-item.is-open .capability-toggle {
+            transform: rotate(45deg);
+        }
+
+        .capability-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .capability-item.is-open .capability-content {
+            max-height: 200px;
+        }
+
+        .capability-text {
+            padding-bottom: 20px;
+            max-width: 560px;
+        }
+
+        .capability-text p {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--gray-dark);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .capability-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* System 01 */
+        .system-section {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 100px;
+            align-items: flex-start;
+        }
+
+        .system-content {
+            padding-top: 0;
+        }
+
+        .system-content .section-number {
+            margin-bottom: 24px;
+        }
+
+        .system-header {
+            margin-bottom: 16px;
+        }
+
+        .system-label {
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-mid);
+            margin-bottom: 8px;
+        }
+
+        .system-title {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            line-height: 1.1;
+        }
+
+        .system-title-tag {
+            font-weight: 600;
+            font-size: 0.5em;
+            color: var(--gray-mid);
+            vertical-align: middle;
+        }
+
+        .system-subtitle {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--gray-mid);
+            margin-top: 12px;
+        }
+
+        .system-description {
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            max-width: 420px;
+            margin-top: 32px;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            margin: 0;
+        }
+
+        .architecture-label {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray-mid);
+            margin-bottom: 24px;
+        }
+
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto auto auto auto auto;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .arch-module {
+            border: 1.5px solid var(--gray-light);
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 80px;
+            background: var(--white);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .arch-module-header {
+            font-family: var(--font-body);
+            font-size: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gray-mid);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .arch-module-title {
+            font-family: var(--font-headline);
+            font-size: 0.875rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: auto;
+        }
+
+        .arch-module-sub {
+            font-family: var(--font-body);
+            font-size: 0.5625rem;
+            color: var(--gray-mid);
+            margin-top: 3px;
+        }
+
+        .arch-module--accent {
+            background: #2a2a2a;
+            color: var(--white);
+            border-color: #2a2a2a;
+        }
+
+        .arch-module--accent .arch-module-header {
+            color: #777;
+        }
+
+        .arch-module--accent .arch-module-sub {
+            color: #888;
+        }
+
+        .arch-module--dark {
+            background: #2a2a2a;
+            color: var(--white);
+            border-color: #2a2a2a;
+        }
+
+        .arch-module--dark .arch-module-header {
+            color: #777;
+        }
+
+        .arch-module--dark .arch-module-sub {
+            color: #888;
+        }
+
+        /* Tooltip for architecture modules */
+        .arch-module[data-tooltip] {
+            cursor: pointer;
+        }
+
+        .arch-module[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--black);
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 0.6875rem;
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 10px 12px;
+            border-radius: 6px;
+            width: max-content;
+            max-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .arch-module[data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .arch-module--wide {
+            grid-column: span 2;
+        }
+
+        .arch-module--tall {
+            grid-row: span 2;
+            min-height: 168px;
+        }
+
+        .arch-module--feature {
+            grid-column: span 2;
+            grid-row: span 2;
+            min-height: 168px;
+            padding: 16px 14px;
+        }
+
+        .arch-module--feature .arch-module-detail {
+            font-family: var(--font-headline);
+            font-size: 1.25rem;
+            font-weight: 700;
+            position: absolute;
+            top: 14px;
+            left: 14px;
+        }
+
+        .arch-module--feature .arch-module-title {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .arch-module--feature .arch-module-sub {
+            font-size: 0.6875rem;
+            margin-top: 6px;
+        }
+
+        .arch-flow {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-family: var(--font-body);
+            font-size: 0.5625rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gray-mid);
+            grid-column: span 4;
+            padding: 6px 0;
+            gap: 10px;
+        }
+
+        .arch-flow::before {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-light);
+        }
+
+        .architecture-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            width: 100%;
+        }
+
+        .architecture-meta span {
+            font-family: var(--font-body);
+            font-size: 0.625rem;
+            font-weight: 400;
+            color: var(--gray-mid);
+        }
+
+        .system-cta {
+            margin-top: 40px;
+        }
+
+        .system-cta p {
+            font-size: 0.8125rem;
+            color: var(--gray-mid);
+            margin-bottom: 6px;
+        }
+
+        .system-cta a {
+            font-family: var(--font-body);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--black);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .system-cta a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--black);
+        }
+
+        .system-cta a:hover {
+            color: var(--gray-dark);
+        }
+
+        /* Constraints Section */
+        .constraints-section {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 100px;
+            align-items: center;
+            min-height: 420px;
+        }
+
+        .constraints-text {
+            padding-right: 20px;
+        }
+
+        .constraints-headline {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            line-height: 1.25;
+            color: #fff;
+        }
+
+        .constraints-headline span {
+            display: block;
+            margin-top: 12px;
+        }
+
+        /* Constraints Diagram */
+        .constraints-diagram {
+            position: relative;
+            width: 100%;
+        }
+
+        .constraints-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 10px 10px;
+            position: relative;
+        }
+
+        .constraint-box {
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            padding: 20px 14px;
+            text-align: center;
+            background: var(--dark);
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .constraint-box--core {
+            border: 1.5px solid var(--white);
+            padding: 24px 18px;
+            background: var(--white);
+        }
+
+        .constraint-box--core .constraint-label {
+            color: var(--black);
+        }
+
+        .constraint-box--core .constraint-sub {
+            color: var(--gray-mid);
+        }
+
+        .constraint-label {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: #fff;
+        }
+
+        .constraint-sub {
+            font-family: var(--font-body);
+            font-size: 0.5625rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 6px;
+        }
+
+        /* Tooltip for constraint boxes */
+        .constraint-box[data-tooltip] {
+            cursor: pointer;
+        }
+
+        .constraint-box[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--white);
+            color: var(--black);
+            font-family: var(--font-body);
+            font-size: 0.6875rem;
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 10px 12px;
+            border-radius: 6px;
+            width: max-content;
+            max-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .constraint-box[data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Grid positions */
+        .constraint--infrastructure { grid-column: 1; grid-row: 1; }
+        .constraint--core { grid-column: 2; grid-row: 1; }
+        .constraint--latency { grid-column: 3; grid-row: 1; }
+        .constraint--compliance { grid-column: 1; grid-row: 2; }
+        .constraint--permissions { grid-column: 2; grid-row: 2; }
+        .constraint--failure { grid-column: 3; grid-row: 2; }
+
+        @media (max-width: 900px) {
+            .constraints-section {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .constraints-text {
+                padding-right: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .constraints-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 8px;
+            }
+
+            .constraint-box {
+                grid-column: 1 !important;
+                grid-row: auto !important;
+            }
+
+            .constraint--infrastructure { order: 1; }
+            .constraint--core { order: 2; }
+            .constraint--latency { order: 3; }
+            .constraint--compliance { order: 4; }
+            .constraint--permissions { order: 5; }
+            .constraint--failure { order: 6; }
+        }
+
+        /* Thinking */
+        .thinking-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .thinking-item {
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .thinking-item:first-child {
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .thinking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            cursor: pointer;
+            font-family: var(--font-headline);
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--black);
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .thinking-header:hover {
+            color: var(--gray-dark);
+        }
+
+        .thinking-toggle {
+            font-family: var(--font-body);
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--gray-mid);
+            transition: transform 0.2s ease;
+        }
+
+        .thinking-item.is-open .thinking-toggle {
+            transform: rotate(45deg);
+        }
+
+        .thinking-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .thinking-item.is-open .thinking-content {
+            max-height: 300px;
+        }
+
+        .thinking-text {
+            padding-bottom: 24px;
+            max-width: 560px;
+        }
+
+        .thinking-text p {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--gray-dark);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .thinking-cta {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--black);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .thinking-cta::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--black);
+        }
+
+        .thinking-cta:hover {
+            color: var(--gray-dark);
+        }
+
+        /* About */
+        .about-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 24px;
+        }
+
+        .about-cta {
+            margin-top: 24px;
+        }
+
+        .about-cta a {
+            font-family: var(--font-body);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--black);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .about-cta a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--black);
+        }
+
+        .about-cta a:hover {
+            color: var(--gray-dark);
+        }
+
+        .about-meta {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .about-meta p {
+            font-size: 0.875rem;
+            color: var(--gray-mid);
+            margin-bottom: 8px;
+        }
+
+        .about-meta p:last-child {
+            margin-bottom: 0;
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 64px 48px;
+            border-top: 1px solid #333;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-title {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .footer-subtitle {
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            color: var(--gray-mid);
+        }
+
+        .footer-location {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--gray-dark);
+            margin-top: 8px;
+        }
+
+        .footer-tagline {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--gray-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 24px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .nav-links a {
+                font-size: 0.75rem;
+            }
+
+            section {
+                padding: 80px 24px;
+            }
+
+            .section-dark {
+                padding: 60px 24px;
+            }
+
+            .hero {
+                padding-top: 140px;
+                padding-bottom: 80px;
+            }
+
+            .system-section {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .system-content {
+                padding-top: 0;
+            }
+
+            .architecture-diagram {
+                grid-template-columns: 1fr 1fr;
+                max-width: 100%;
+            }
+
+            .arch-module--wide,
+            .arch-module--feature {
+                grid-column: span 2;
+            }
+
+            .arch-module--tall,
+            .arch-module--feature {
+                grid-row: span 1;
+                min-height: 100px;
+            }
+
+            .arch-module--feature .arch-module-title {
+                font-size: 1.5rem;
+            }
+
+            .arch-flow {
+                grid-column: span 2;
+            }
+
+            .architecture-meta {
+                max-width: 100%;
+            }
+
+            footer {
+                padding: 48px 24px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" class="nav-logo">Riot Haus</a>
+        <div class="nav-links">
+            <a href="#systems">Systems</a>
+            <a href="#system-01">System 01</a>
+            <a href="#thinking">Thinking</a>
+            <a href="#about">About</a>
+        </div>
+    </nav>
+
+    <section class="hero section-light">
+        <div class="dot-grid">
+            <canvas id="dotCanvas"></canvas>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">Riot Haus</h1>
+            <p class="hero-subtitle">Modular AI systems for real environments.</p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section id="systems" class="section-dark section-dark--systems">
+        <p class="section-number">/01 Systems</p>
+        <h2 class="section-title">Most AI systems fail at retrieval.<br>Not generation.</h2>
+        <p class="section-text">The model is rarely the problem. Grounding is. Without structured retrieval, outputs drift. Context windows fill with noise. Answers hallucinate.</p>
+        <p class="section-text">We build retrieval-first systems. Hybrid search with vector and keyword fusion. Scope-aware queries. Reranking before generation. Architecture designed for accuracy.</p>
+        <p class="section-text">Security is structural: JWT authentication, encrypted OAuth tokens, tenant isolation, and scoped permissions. All of it built into the system boundary from the start.</p>
+    </section>
+
+    <div class="divider divider-dark"></div>
+
+    <section class="section-light">
+        <p class="section-number">/02 Capability</p>
+        <ul class="capability-list">
+            <li class="capability-item">
+                <button class="capability-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Retrieval-first architecture</span>
+                    <span class="capability-toggle">+</span>
+                </button>
+                <div class="capability-content">
+                    <div class="capability-text">
+                        <p>Design retrieval as a primary system layer, not a downstream add-on.</p>
+                        <p>Vector + keyword strategies are structured before model invocation to ensure grounded outputs.</p>
+                    </div>
+                </div>
+            </li>
+            <li class="capability-item">
+                <button class="capability-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Modular connector design</span>
+                    <span class="capability-toggle">+</span>
+                </button>
+                <div class="capability-content">
+                    <div class="capability-text">
+                        <p>Data sources are abstracted as interchangeable connectors.</p>
+                        <p>New integrations can be introduced without restructuring the core system.</p>
+                    </div>
+                </div>
+            </li>
+            <li class="capability-item">
+                <button class="capability-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Access-controlled infrastructure</span>
+                    <span class="capability-toggle">+</span>
+                </button>
+                <div class="capability-content">
+                    <div class="capability-text">
+                        <p>Permissions, scopes, and identity layers are isolated and enforced at the system boundary.</p>
+                        <p>Security constraints are treated as architectural inputs, not compliance afterthoughts.</p>
+                    </div>
+                </div>
+            </li>
+            <li class="capability-item">
+                <button class="capability-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Production deployment workflows</span>
+                    <span class="capability-toggle">+</span>
+                </button>
+                <div class="capability-content">
+                    <div class="capability-text">
+                        <p>Systems are containerised, versioned, and deployed with environment separation.</p>
+                        <p>Infrastructure decisions account for latency, monitoring, and failure recovery.</p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section id="system-01" class="section-light">
+        <div class="system-section">
+            <div class="system-content">
+                <p class="section-number">/03 System 01</p>
+                <div class="system-header">
+                    <h2 class="system-title">System 01 <span class="system-title-tag">[Oku]</span></h2>
+                    <p class="system-subtitle">Retrieval Infrastructure</p>
+                </div>
+                <p class="system-description">Modular retrieval system with multi-source ingestion, hybrid search, and production-grade infrastructure. Combines vector and keyword retrieval with RRF fusion and cross-encoder reranking. Supports Google Drive, local files, and browser uploads with idempotent sync. Includes OCR for scanned documents, scope-aware queries, and conversational context handling. Multi-tenant architecture with JWT authentication and containerised deployment. Currently undergoing external review prior to public release.</p>
+
+                <div class="system-cta">
+                    <p>Private system walkthrough available upon request.</p>
+                    <a href="mailto:hello@riothaus.com">Request a private walkthrough →</a>
+                </div>
+            </div>
+
+            <div class="architecture">
+                <p class="architecture-label">Architecture Diagram</p>
+                <div class="architecture-diagram">
+                    <!-- Row 1: Feature + Connectors -->
+                    <div class="arch-module arch-module--feature arch-module--accent" data-tooltip="Production-grade retrieval system with hybrid search, multi-source ingestion, and tenant isolation.">
+                        <div class="arch-module-detail">*</div>
+                        <div class="arch-module-header">System 01</div>
+                        <div class="arch-module-title">Oku</div>
+                        <div class="arch-module-sub">Retrieval Infrastructure</div>
+                    </div>
+                    <div class="arch-module" data-tooltip="OAuth 2.0 integration with Google Picker API. Supports folder selection, incremental sync, and encrypted token storage.">
+                        <div class="arch-module-header">01</div>
+                        <div class="arch-module-title">Google Drive</div>
+                        <div class="arch-module-sub">OAuth + Picker</div>
+                    </div>
+                    <div class="arch-module" data-tooltip="Direct filesystem ingestion for server-side document processing. Supports recursive directory scanning.">
+                        <div class="arch-module-header">02</div>
+                        <div class="arch-module-title">Local Files</div>
+                        <div class="arch-module-sub">Filesystem</div>
+                    </div>
+                    <div class="arch-module" data-tooltip="Browser-based file upload with drag-and-drop. Handles PDFs, DOCX, TXT, and images with immediate processing.">
+                        <div class="arch-module-header">03</div>
+                        <div class="arch-module-title">Browser Upload</div>
+                        <div class="arch-module-sub">Direct ingest</div>
+                    </div>
+                    <div class="arch-module arch-module--dark" data-tooltip="JWT-based authentication with scoped permissions. Each tenant's data is isolated at query and storage levels.">
+                        <div class="arch-module-header">Auth</div>
+                        <div class="arch-module-title">JWT + Scope</div>
+                        <div class="arch-module-sub">Isolation</div>
+                    </div>
+
+                    <!-- Flow label -->
+                    <div class="arch-flow">Data Sources</div>
+
+                    <!-- Row 2: Processing + Storage -->
+                    <div class="arch-module arch-module--accent arch-module--wide" data-tooltip="Extracts text from documents, splits into semantic chunks, generates embeddings. Includes OCR for scanned PDFs and images.">
+                        <div class="arch-module-header">Pipeline</div>
+                        <div class="arch-module-title">Document Processing</div>
+                        <div class="arch-module-sub">Parse / Chunk / Embed / OCR</div>
+                    </div>
+                    <div class="arch-module" data-tooltip="Vector database storing document embeddings. Enables semantic similarity search with approximate nearest neighbor algorithms.">
+                        <div class="arch-module-header">Vector</div>
+                        <div class="arch-module-title">Qdrant</div>
+                        <div class="arch-module-sub">Embeddings</div>
+                    </div>
+                    <div class="arch-module" data-tooltip="Full-text search index using PostgreSQL. Captures exact keyword matches that vector search might miss.">
+                        <div class="arch-module-header">FTS</div>
+                        <div class="arch-module-title">Postgres</div>
+                        <div class="arch-module-sub">Keywords</div>
+                    </div>
+
+                    <!-- Flow label -->
+                    <div class="arch-flow">Ingest</div>
+
+                    <!-- Row 3: Retrieval + Generation -->
+                    <div class="arch-module arch-module--accent" data-tooltip="Combines vector and keyword search results using Reciprocal Rank Fusion. Balances semantic understanding with lexical precision.">
+                        <div class="arch-module-header">Search</div>
+                        <div class="arch-module-title">Hybrid</div>
+                        <div class="arch-module-sub">RRF fusion</div>
+                    </div>
+                    <div class="arch-module" data-tooltip="Cross-encoder model that scores query-document pairs. Reorders candidates to surface the most relevant chunks before generation.">
+                        <div class="arch-module-header">Rank</div>
+                        <div class="arch-module-title">Reranker</div>
+                        <div class="arch-module-sub">Cross-encoder</div>
+                    </div>
+                    <div class="arch-module arch-module--dark arch-module--wide" data-tooltip="Assembles retrieved context with conversation history. Streams responses with citations back to source documents.">
+                        <div class="arch-module-header">Output</div>
+                        <div class="arch-module-title">LLM Response</div>
+                        <div class="arch-module-sub">Context assembly + streaming</div>
+                    </div>
+
+                    <!-- Flow label -->
+                    <div class="arch-flow">Retrieve</div>
+                </div>
+                <div class="architecture-meta">
+                    <span>Modular Retrieval Architecture</span>
+                    <span>Rev. 01 — 2026</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section-dark">
+        <p class="section-number">/04 Constraints</p>
+
+        <div class="constraints-section">
+            <div class="constraints-text">
+                <p class="constraints-headline">
+                    Design for constraints early.
+                    <span>Or fix them later at scale.</span>
+                </p>
+            </div>
+
+            <div class="constraints-diagram">
+                <div class="constraints-grid">
+                    <!-- Row 1: Infrastructure, Core, Latency -->
+                    <div class="constraint-box constraint--infrastructure" data-tooltip="Deployment environment, container orchestration, database provisioning, and monitoring. Decisions made here cascade through the entire system.">
+                        <div class="constraint-label">Infrastructure</div>
+                    </div>
+                    <div class="constraint-box constraint-box--core constraint--core" data-tooltip="The retrieval pipeline, model integration, and response generation. Everything else exists to support this layer.">
+                        <div class="constraint-label">Core System</div>
+                        <div class="constraint-sub">Retrieval + LLM + Response</div>
+                    </div>
+                    <div class="constraint-box constraint--latency" data-tooltip="Response time budgets for retrieval, reranking, and generation. Users notice delays above 2 seconds. Architecture must account for this.">
+                        <div class="constraint-label">Latency</div>
+                    </div>
+
+                    <!-- Row 2: Compliance, Permissions, Failure States -->
+                    <div class="constraint-box constraint--compliance" data-tooltip="Data residency, retention policies, audit logging. Regulatory requirements shape what data can be stored and where.">
+                        <div class="constraint-label">Compliance</div>
+                    </div>
+                    <div class="constraint-box constraint--permissions" data-tooltip="Who can access what data. Tenant isolation, role-based access, and scoped queries. Security is architectural, not a feature.">
+                        <div class="constraint-label">Permissions</div>
+                    </div>
+                    <div class="constraint-box constraint--failure" data-tooltip="What happens when retrieval returns nothing, when the LLM times out, when a connector fails. Graceful degradation over silent errors.">
+                        <div class="constraint-label">Failure States</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider divider-dark"></div>
+
+    <section id="thinking" class="section-light">
+        <p class="section-number">/05 Thinking</p>
+        <ul class="thinking-list">
+            <li class="thinking-item">
+                <button class="thinking-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Why Most RAG Systems Fail</span>
+                    <span class="thinking-toggle">+</span>
+                </button>
+                <div class="thinking-content">
+                    <div class="thinking-text">
+                        <p>When teams build retrieval-augmented generation systems, they typically start with the model. They pick GPT-4 or Claude, wire up a basic vector database, and call it a day. Six months later, they're debugging hallucinations. The problem is rarely the model. It's almost always the retrieval.</p>
+                        <a href="thinking/why-most-rag-systems-fail.html" class="thinking-cta">Read the full article →</a>
+                    </div>
+                </div>
+            </li>
+            <li class="thinking-item">
+                <button class="thinking-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Hybrid Retrieval vs Pure Embeddings</span>
+                    <span class="thinking-toggle">+</span>
+                </button>
+                <div class="thinking-content">
+                    <div class="thinking-text">
+                        <p>Vector embeddings transformed document retrieval. Instead of matching keywords, we could match meaning. A query about "company earnings" could find documents discussing "financial performance" without those exact words appearing. Then teams deployed it to production and discovered the edge cases.</p>
+                        <a href="thinking/hybrid-retrieval-vs-pure-embeddings.html" class="thinking-cta">Read the full article →</a>
+                    </div>
+                </div>
+            </li>
+            <li class="thinking-item">
+                <button class="thinking-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>The Case for Reranking in Production RAG</span>
+                    <span class="thinking-toggle">+</span>
+                </button>
+                <div class="thinking-content">
+                    <div class="thinking-text">
+                        <p>Retrieval gets you candidates. Reranking gets you the right candidates. The distinction matters more than most teams realize when building production RAG systems. The standard pipeline hopes the LLM figures out which chunks matter. This works until it doesn't.</p>
+                        <a href="thinking/the-case-for-reranking.html" class="thinking-cta">Read the full article →</a>
+                    </div>
+                </div>
+            </li>
+            <li class="thinking-item">
+                <button class="thinking-header" onclick="this.parentElement.classList.toggle('is-open')">
+                    <span>Designing AI Features That Users Trust</span>
+                    <span class="thinking-toggle">+</span>
+                </button>
+                <div class="thinking-content">
+                    <div class="thinking-text">
+                        <p>Users don't trust AI features because they're powerful. They trust them because they're predictable. A feature that works brilliantly 80% of the time and fails catastrophically 20% of the time is worse than a feature that works adequately 100% of the time.</p>
+                        <a href="thinking/designing-ai-features-users-trust.html" class="thinking-cta">Read the full article →</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section id="about" class="section-light">
+        <p class="section-number">/06 About</p>
+        <p class="about-text">Riot Haus is an independent AI systems studio specialising in retrieval-first architecture. We think most AI projects fail not because of the model, but because the hard stuff gets bolted on later: search, security, failure handling. If you're tired of demos that don't scale, we'd like to hear what you're building.</p>
+        <div class="about-cta">
+            <a href="mailto:hello@riothaus.com">Get in touch →</a>
+        </div>
+        <div class="about-meta">
+            <p>Founded in 2025.</p>
+            <p>London / Remote.</p>
+            <p>Founded by Andrea Mattioli.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-title">Riot Haus</span>
+                <span class="footer-subtitle">AI Systems Studio</span>
+            </div>
+            <span class="footer-tagline">London / Remote</span>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+    (function() {
+        const canvas = document.getElementById('dotCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        // Config
+        const dotSize = 4.5;
+        const gap = 32;
+        const colors = [
+            { r: 220, g: 38, b: 38 },    // red
+            { r: 37, g: 99, b: 235 },    // blue
+            { r: 234, g: 179, b: 8 },    // yellow
+            { r: 10, g: 10, b: 10 }      // black
+        ];
+        const proximity = 120;
+        const shockRadius = 200;
+        const shockStrength = 3;
+
+        let dots = [];
+        let pointer = { x: -1000, y: -1000 };
+        let width, height, dpr;
+
+        function buildGrid() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+            dpr = window.devicePixelRatio || 1;
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.scale(dpr, dpr);
+
+            const cell = dotSize + gap;
+            const cols = Math.floor((width + gap) / cell);
+            const rows = Math.floor((height + gap) / cell);
+
+            const gridW = cell * cols - gap;
+            const gridH = cell * rows - gap;
+            const startX = (width - gridW) / 2 + dotSize / 2;
+            const startY = (height - gridH) / 2 + dotSize / 2;
+
+            dots = [];
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    dots.push({
+                        cx: startX + x * cell,
+                        cy: startY + y * cell,
+                        xOffset: 0,
+                        yOffset: 0,
+                        color: color,
+                        gridX: x,
+                        gridY: y
+                    });
+                }
+            }
+            dots.cols = cols;
+            dots.rows = rows;
+            dots.cell = cell;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            const proxSq = proximity * proximity;
+            const greyColor = { r: 200, g: 200, b: 200 };
+            const lineColor = 'rgba(200, 200, 200, 0.4)';
+
+            // Draw grid lines
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 1;
+
+            for (const dot of dots) {
+                const ox = dot.cx + dot.xOffset;
+                const oy = dot.cy + dot.yOffset;
+
+                // Draw line to right neighbor
+                if (dot.gridX < dots.cols - 1) {
+                    const rightDot = dots[dot.gridY * dots.cols + dot.gridX + 1];
+                    const rx = rightDot.cx + rightDot.xOffset;
+                    const ry = rightDot.cy + rightDot.yOffset;
+                    ctx.beginPath();
+                    ctx.moveTo(ox, oy);
+                    ctx.lineTo(rx, ry);
+                    ctx.stroke();
+                }
+
+                // Draw line to bottom neighbor
+                if (dot.gridY < dots.rows - 1) {
+                    const bottomDot = dots[(dot.gridY + 1) * dots.cols + dot.gridX];
+                    const bx = bottomDot.cx + bottomDot.xOffset;
+                    const by = bottomDot.cy + bottomDot.yOffset;
+                    ctx.beginPath();
+                    ctx.moveTo(ox, oy);
+                    ctx.lineTo(bx, by);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw dots
+            for (const dot of dots) {
+                const ox = dot.cx + dot.xOffset;
+                const oy = dot.cy + dot.yOffset;
+                const dx = dot.cx - pointer.x;
+                const dy = dot.cy - pointer.y;
+                const dsq = dx * dx + dy * dy;
+
+                let c = greyColor;
+                let size = dotSize;
+
+                if (dsq <= proxSq) {
+                    const dist = Math.sqrt(dsq);
+                    const t = 1 - dist / proximity;
+                    c = dot.color;
+                    size = dotSize + (dotSize * t);
+                }
+
+                ctx.beginPath();
+                ctx.arc(ox, oy, size / 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
+                ctx.fill();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        let mouseX = -1000, mouseY = -1000;
+
+        function updatePointer() {
+            const rect = canvas.getBoundingClientRect();
+            pointer.x = mouseX - rect.left;
+            pointer.y = mouseY - rect.top;
+        }
+
+        function onMove(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            updatePointer();
+        }
+
+        function onScroll() {
+            updatePointer();
+        }
+
+        function onClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const cx = e.clientX - rect.left;
+            const cy = e.clientY - rect.top;
+
+            for (const dot of dots) {
+                const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
+                if (dist < shockRadius) {
+                    const falloff = Math.max(0, 1 - dist / shockRadius);
+                    const pushX = (dot.cx - cx) * shockStrength * falloff;
+                    const pushY = (dot.cy - cy) * shockStrength * falloff;
+
+                    gsap.killTweensOf(dot);
+                    gsap.to(dot, {
+                        xOffset: pushX,
+                        yOffset: pushY,
+                        duration: 0.15,
+                        ease: 'power2.out',
+                        onComplete: () => {
+                            gsap.to(dot, {
+                                xOffset: 0,
+                                yOffset: 0,
+                                duration: 1.2,
+                                ease: 'elastic.out(1, 0.5)'
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        buildGrid();
+        draw();
+
+        window.addEventListener('resize', buildGrid);
+        window.addEventListener('mousemove', onMove, { passive: true });
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('click', onClick);
+    })();
+    </script>
+</body>
+</html>

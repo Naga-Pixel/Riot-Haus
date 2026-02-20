@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Case for Reranking in Production RAG — Riot Haus</title>
+    <meta name="description" content="Why cross-encoder reranking between retrieval and generation improves answer quality in production RAG systems.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --gray-light: #e5e5e5;
+            --gray-mid: #888888;
+            --gray-dark: #666666;
+            --font-headline: 'Space Grotesk', sans-serif;
+            --font-body: 'IBM Plex Sans', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--white);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .nav-logo {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--gray-mid);
+        }
+
+        article {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 80px 24px 120px;
+        }
+
+        .article-meta {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--gray-mid);
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 48px;
+        }
+
+        p {
+            font-size: 1.0625rem;
+            line-height: 1.75;
+            margin-bottom: 24px;
+            color: var(--black);
+        }
+
+        h2 {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 48px;
+            margin-bottom: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--gray-mid);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--black);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 24px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="../index.html" class="nav-logo">Riot Haus</a>
+        <div class="nav-links">
+            <a href="../index.html#systems">Systems</a>
+            <a href="../index.html#system-01">System 01</a>
+            <a href="../index.html#thinking">Thinking</a>
+            <a href="../index.html#about">About</a>
+        </div>
+    </nav>
+
+    <article>
+        <p class="article-meta">/05 Thinking</p>
+        <h1>The Case for Reranking in Production RAG</h1>
+
+        <p>Retrieval gets you candidates. Reranking gets you the right candidates. The distinction matters more than most teams realize when building production RAG systems.</p>
+
+        <p>The standard pipeline retrieves the top-k chunks by vector similarity, stuffs them into the context window, and hopes the LLM figures out which ones matter. This works until it doesn't. When retrieval returns marginally relevant chunks alongside highly relevant ones, the model's output quality degrades in ways that are hard to debug.</p>
+
+        <h2>The Retrieval-Reranking Split</h2>
+
+        <p>Retrieval and reranking solve different problems with different tools. Retrieval needs to be fast. It searches across thousands or millions of documents and must return results in milliseconds. This speed requirement forces architectural compromises. Vector similarity with approximate nearest neighbor search is fast but imprecise.</p>
+
+        <p>Reranking operates on a much smaller set—typically 20 to 50 candidates from the retrieval stage. With fewer items to process, reranking can use more expensive models that directly compare the query against each candidate. Cross-encoders process the query and document together, capturing interactions that bi-encoders miss.</p>
+
+        <p>A bi-encoder embeds the query and document separately, then compares the embeddings. It can't see how specific words in the query relate to specific words in the document. A cross-encoder processes both together, attending across the full query-document pair. This architectural difference translates directly to ranking quality.</p>
+
+        <h2>What Reranking Catches</h2>
+
+        <p>Consider a query about "termination clauses in the 2024 vendor agreement." Retrieval might return chunks from multiple contracts, all discussing termination. Some are from the right document, some aren't. Vector similarity treats them as roughly equivalent—they're all semantically about termination clauses.</p>
+
+        <p>A cross-encoder reranker sees the full context. It recognizes that "2024 vendor agreement" is a specific reference and boosts chunks from that document. It demotes chunks that discuss termination generally but don't match the specific agreement. The reranker understands the query intent in a way that embedding similarity cannot.</p>
+
+        <p>Reranking also helps with diversity. If retrieval returns five chunks from the same section of one document, a reranker can identify redundancy and promote chunks from other relevant sections. This prevents the context window from being dominated by repetitive content.</p>
+
+        <h2>The Latency Tradeoff</h2>
+
+        <p>Reranking adds latency. A cross-encoder must process each candidate sequentially or in small batches. For 30 candidates, this might add 200-500ms to the response time. In interactive applications, this latency is noticeable.</p>
+
+        <p>The tradeoff is usually worth it. A 300ms increase in latency that improves answer relevance by 15-20% is a good trade for most applications. Users notice wrong answers more than they notice slightly slower answers.</p>
+
+        <p>The key is keeping the candidate set small enough that reranking stays fast. Retrieve 30-50 candidates, rerank them, and pass the top 5-10 to the LLM. The retrieval stage casts a wide net; the reranker filters it down to what actually matters.</p>
+
+        <h2>Implementation Considerations</h2>
+
+        <p>Production reranking requires attention to failure modes. If the reranker service is unavailable, the system should fall back to retrieval-only results rather than failing entirely. If reranking latency spikes, the system needs timeouts that preserve responsiveness.</p>
+
+        <p>Reranker models also need periodic evaluation. As document collections grow and query patterns shift, a reranker trained on old data may drift in effectiveness. Monitoring reranker performance—not just overall system performance—catches degradation early.</p>
+
+        <p>The investment in reranking infrastructure pays off in answer quality. For systems where accuracy matters, reranking isn't optional. It's the difference between a retrieval pipeline and a production-grade RAG system.</p>
+
+        <a href="../index.html#thinking" class="back-link">Back to Thinking</a>
+    </article>
+</body>
+</html>

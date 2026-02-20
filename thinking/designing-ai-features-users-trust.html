@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designing AI Features That Users Trust — Riot Haus</title>
+    <meta name="description" content="Trust in AI systems comes from predictability, transparency, and appropriate constraints—not capability.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --gray-light: #e5e5e5;
+            --gray-mid: #888888;
+            --gray-dark: #666666;
+            --font-headline: 'Space Grotesk', sans-serif;
+            --font-body: 'IBM Plex Sans', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--white);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .nav-logo {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--gray-mid);
+        }
+
+        article {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 80px 24px 120px;
+        }
+
+        .article-meta {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--gray-mid);
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 48px;
+        }
+
+        p {
+            font-size: 1.0625rem;
+            line-height: 1.75;
+            margin-bottom: 24px;
+            color: var(--black);
+        }
+
+        h2 {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 48px;
+            margin-bottom: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--gray-mid);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--black);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 24px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="../index.html" class="nav-logo">Riot Haus</a>
+        <div class="nav-links">
+            <a href="../index.html#systems">Systems</a>
+            <a href="../index.html#system-01">System 01</a>
+            <a href="../index.html#thinking">Thinking</a>
+            <a href="../index.html#about">About</a>
+        </div>
+    </nav>
+
+    <article>
+        <p class="article-meta">/05 Thinking</p>
+        <h1>Designing AI Features That Users Trust</h1>
+
+        <p>Users don't trust AI features because they're powerful. They trust them because they're predictable. The distinction shapes every design decision in production AI systems.</p>
+
+        <p>A feature that works brilliantly 80% of the time and fails catastrophically 20% of the time is worse than a feature that works adequately 100% of the time. Users calibrate their trust based on worst-case behavior, not average performance. One confidently wrong answer erodes more trust than ten correct ones build.</p>
+
+        <h2>Scoping Creates Trust</h2>
+
+        <p>The most trustworthy AI features are narrowly scoped. Instead of "ask anything about your documents," the interface is "search your Q3 contracts." Instead of a general assistant, a tool that answers questions about specific document sets within clear boundaries.</p>
+
+        <p>Scope constraints serve multiple purposes. They improve retrieval accuracy by limiting the search space. They set user expectations about what the system can and cannot do. They make failure modes predictable—if you ask about something outside the scope, the system tells you rather than guessing.</p>
+
+        <p>Scope-aware queries in production RAG systems let users specify which folders or documents to search. This isn't a limitation to apologize for. It's a feature that makes the system more useful and more trustworthy. Users can verify answers against a known document set rather than wondering which of their thousands of files the system consulted.</p>
+
+        <h2>Citations as Accountability</h2>
+
+        <p>Every claim should link to its source. This isn't just about helping users verify answers—it's about constraining system behavior. When the architecture requires citations, the system can't generate claims that aren't grounded in retrieved documents.</p>
+
+        <p>Citation requirements change how you build the generation layer. The prompt must instruct the model to reference specific chunks. The output parser must extract and validate citations. The interface must make citations accessible without cluttering the response.</p>
+
+        <p>Users learn to trust systems that show their work. When an answer includes citations to specific sections of specific documents, users can quickly verify accuracy. When an answer has no citations, users know to treat it with more skepticism. The citation pattern becomes a trust signal.</p>
+
+        <h2>Graceful Uncertainty</h2>
+
+        <p>Production AI systems need explicit handling for low-confidence situations. When retrieval doesn't find relevant content, the system should say so rather than generating a plausible-sounding response from general knowledge. When the retrieved chunks partially address the query, the response should acknowledge the gaps.</p>
+
+        <p>This requires detecting uncertainty at multiple levels. Did retrieval return relevant results? Do the retrieved chunks actually contain information that answers the question? Is the generated response well-supported by the context? Each check point is an opportunity to fail gracefully rather than confidently.</p>
+
+        <p>Users trust systems that admit limitations more than systems that always produce an answer. "I found information about vendor contracts but nothing specifically about termination clauses" is more useful than a hallucinated answer about termination clauses.</p>
+
+        <h2>Consistency Over Capability</h2>
+
+        <p>Feature roadmaps for AI products often prioritize capability expansion. More document types, more query types, more integrations. This creates surface area for inconsistent behavior.</p>
+
+        <p>A more trustworthy approach prioritizes consistency within a defined scope before expanding that scope. Make sure the system handles all queries about existing document types reliably before adding new document types. Make sure existing integrations work flawlessly before adding new ones.</p>
+
+        <p>Users who encounter consistent, reliable behavior within a narrow scope will expand their usage naturally. Users who encounter inconsistent behavior across a broad feature set will retreat to the minimum viable usage or abandon the product entirely.</p>
+
+        <p>Trust is earned through repeated reliable interactions, not through impressive demos. Design for the hundred queries after the first one, not just the first query that makes the feature look good.</p>
+
+        <a href="../index.html#thinking" class="back-link">Back to Thinking</a>
+    </article>
+</body>
+</html>

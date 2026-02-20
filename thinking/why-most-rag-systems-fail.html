@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Most RAG Systems Fail — Riot Haus</title>
+    <meta name="description" content="RAG systems fail not because of model limitations, but because retrieval is treated as an afterthought.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --gray-light: #e5e5e5;
+            --gray-mid: #888888;
+            --gray-dark: #666666;
+            --font-headline: 'Space Grotesk', sans-serif;
+            --font-body: 'IBM Plex Sans', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--white);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .nav-logo {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--gray-mid);
+        }
+
+        article {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 80px 24px 120px;
+        }
+
+        .article-meta {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--gray-mid);
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 48px;
+        }
+
+        p {
+            font-size: 1.0625rem;
+            line-height: 1.75;
+            margin-bottom: 24px;
+            color: var(--black);
+        }
+
+        h2 {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 48px;
+            margin-bottom: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--gray-mid);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--black);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 24px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="../index.html" class="nav-logo">Riot Haus</a>
+        <div class="nav-links">
+            <a href="../index.html#systems">Systems</a>
+            <a href="../index.html#system-01">System 01</a>
+            <a href="../index.html#thinking">Thinking</a>
+            <a href="../index.html#about">About</a>
+        </div>
+    </nav>
+
+    <article>
+        <p class="article-meta">/05 Thinking</p>
+        <h1>Why Most RAG Systems Fail</h1>
+
+        <p>When teams build retrieval-augmented generation systems, they typically start with the model. They pick GPT-4 or Claude, wire up a basic vector database, and call it a day. Six months later, they're debugging hallucinations, fielding complaints about irrelevant answers, and wondering why their AI assistant keeps confidently stating things that aren't in any of their documents.</p>
+
+        <p>The problem is rarely the model. It's almost always the retrieval.</p>
+
+        <h2>The Retrieval Afterthought</h2>
+
+        <p>Most RAG implementations treat retrieval as plumbing. Chunk the documents, generate embeddings, store them in a vector database, retrieve the top 5 results by cosine similarity, and pass them to the LLM. This approach works well enough for demos. It falls apart in production.</p>
+
+        <p>The failure modes are predictable. Vector similarity alone misses keyword-specific queries. A user searching for "Q3 revenue" might get chunks about "financial performance" that never mention the specific quarter. The embedding space captures semantic meaning, but loses lexical precision.</p>
+
+        <p>Chunking strategies introduce their own problems. Split a document at the wrong boundary and you lose context. Keep chunks too large and you dilute relevance. The retrieval layer returns fragments that technically match but don't actually answer the question.</p>
+
+        <h2>Context Window Noise</h2>
+
+        <p>Even when retrieval returns relevant chunks, the context window becomes a liability. LLMs don't weight all context equally. Information at the beginning and end of the context window gets more attention than content in the middle. If your most relevant chunk lands in position three of five, it may be functionally invisible to the model.</p>
+
+        <p>Worse, irrelevant chunks actively hurt performance. They're not neutral. They introduce noise that the model must filter through. When a chunk contains plausible-sounding but incorrect information, the model may incorporate it into its response. The hallucination doesn't come from the model's imagination—it comes from bad retrieval.</p>
+
+        <h2>The Architecture Fix</h2>
+
+        <p>Production RAG systems need retrieval designed as a first-class concern. This means hybrid search that combines vector similarity with keyword matching. It means reranking retrieved results with a cross-encoder before they reach the LLM. It means scope-aware queries that understand document boundaries and folder structures.</p>
+
+        <p>The model is the easiest part of the system to swap. Retrieval architecture is not. Teams that treat retrieval as infrastructure—boring but critical—build systems that actually work. Teams that treat it as a detail to solve later build demos that can't scale.</p>
+
+        <p>The fix isn't more sophisticated prompting or a larger model. It's taking retrieval seriously from day one.</p>
+
+        <a href="../index.html#thinking" class="back-link">Back to Thinking</a>
+    </article>
+</body>
+</html>

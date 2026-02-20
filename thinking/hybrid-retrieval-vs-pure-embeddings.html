@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Retrieval vs Pure Embeddings — Riot Haus</title>
+    <meta name="description" content="Why combining vector search with keyword matching outperforms pure embedding-based retrieval in production systems.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --gray-light: #e5e5e5;
+            --gray-mid: #888888;
+            --gray-dark: #666666;
+            --font-headline: 'Space Grotesk', sans-serif;
+            --font-body: 'IBM Plex Sans', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--white);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .nav-logo {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--black);
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--gray-mid);
+        }
+
+        article {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 80px 24px 120px;
+        }
+
+        .article-meta {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--gray-mid);
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-family: var(--font-headline);
+            font-weight: 700;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 48px;
+        }
+
+        p {
+            font-size: 1.0625rem;
+            line-height: 1.75;
+            margin-bottom: 24px;
+            color: var(--black);
+        }
+
+        h2 {
+            font-family: var(--font-headline);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 48px;
+            margin-bottom: 16px;
+        }
+
+        code {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            font-size: 0.9375rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--gray-mid);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--black);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 24px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="../index.html" class="nav-logo">Riot Haus</a>
+        <div class="nav-links">
+            <a href="../index.html#systems">Systems</a>
+            <a href="../index.html#system-01">System 01</a>
+            <a href="../index.html#thinking">Thinking</a>
+            <a href="../index.html#about">About</a>
+        </div>
+    </nav>
+
+    <article>
+        <p class="article-meta">/05 Thinking</p>
+        <h1>Hybrid Retrieval vs Pure Embeddings</h1>
+
+        <p>Vector embeddings transformed document retrieval. Instead of matching keywords, we could match meaning. A query about "company earnings" could find documents discussing "financial performance" or "quarterly results" without those exact words appearing. Semantic search felt like magic.</p>
+
+        <p>Then teams deployed it to production and discovered the edge cases.</p>
+
+        <h2>Where Embeddings Fall Short</h2>
+
+        <p>Embeddings encode semantic similarity, not lexical precision. When a user searches for <code>invoice INV-2024-0847</code>, they want that specific invoice. Vector search might return chunks containing similar invoice numbers, or documents that discuss invoices generally. The embedding captures "this is about invoices" but loses the specific identifier.</p>
+
+        <p>The same problem appears with names, dates, acronyms, and technical terms. A search for "HIPAA compliance" might surface documents about "healthcare regulations" that never mention HIPAA specifically. Semantically related, but not what the user needed.</p>
+
+        <p>Embeddings also struggle with negation and precise relationships. "Contracts that do not include arbitration clauses" is a specific query that vector similarity handles poorly. The embedding for this query will be similar to documents that do include arbitration clauses, because both are about arbitration.</p>
+
+        <h2>The Keyword Baseline</h2>
+
+        <p>Traditional full-text search solved these problems decades ago. BM25 and TF-IDF rank documents by term frequency and specificity. If you search for a specific invoice number, keyword search finds it. If you search for an exact phrase, keyword search matches it.</p>
+
+        <p>Keyword search fails at semantic understanding. A search for "termination policy" won't find documents that only use "ending employment" or "separation procedures." Users have to guess the exact terminology used in the documents.</p>
+
+        <p>Neither approach is sufficient alone. Both are necessary.</p>
+
+        <h2>Reciprocal Rank Fusion</h2>
+
+        <p>Hybrid retrieval runs both searches in parallel and combines the results. The standard approach uses Reciprocal Rank Fusion (RRF), which scores documents based on their rank in each result set rather than their raw scores.</p>
+
+        <p>A document that appears in position 2 of vector results and position 5 of keyword results gets a combined score based on both positions. Documents that appear in only one result set still contribute, but documents that appear in both get a boost.</p>
+
+        <p>RRF handles the score normalization problem elegantly. Vector similarity scores and BM25 scores aren't directly comparable—their ranges and distributions differ. By converting to ranks first, RRF sidesteps the calibration issue entirely.</p>
+
+        <h2>Implementation Reality</h2>
+
+        <p>Running hybrid search requires maintaining two indexes: a vector store for embeddings and a full-text search index. This adds operational complexity. You're syncing documents to two systems, managing two query paths, and combining results before passing them to the LLM.</p>
+
+        <p>The complexity is worth it. In production systems with real user queries, hybrid retrieval consistently outperforms pure vector search. The improvement is especially noticeable for queries involving specific identifiers, exact phrases, or technical terminology.</p>
+
+        <p>The architecture decision is straightforward. If your documents contain specific terms that users will search for exactly, you need hybrid retrieval. If your users ask questions using different vocabulary than your documents, you need hybrid retrieval. In practice, this means almost every production system needs both.</p>
+
+        <a href="../index.html#thinking" class="back-link">Back to Thinking</a>
+    </article>
+</body>
+</html>
