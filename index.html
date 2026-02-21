@@ -1070,9 +1070,24 @@
 
             /* Ensure tooltips aren't clipped */
             .constraints-diagram,
-            .constraints-grid,
-            .constraint-box {
+            .constraints-grid {
                 overflow: visible;
+            }
+
+            /* Position tooltips relative to the grid, not individual boxes */
+            .constraint-box {
+                position: static;
+            }
+
+            .constraint-box[data-tooltip]::after {
+                position: absolute;
+                bottom: 100%;
+                left: 16px;
+                right: 16px;
+                width: auto;
+                max-width: none;
+                transform: none;
+                margin-bottom: 8px;
             }
 
 
