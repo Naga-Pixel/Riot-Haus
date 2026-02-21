@@ -1075,9 +1075,13 @@
                 overflow: visible;
             }
 
-            /* Infrastructure tooltip appears above Core System */
+            /* Infrastructure tooltip appears to the left */
             .constraint--infrastructure[data-tooltip]::after {
-                bottom: calc(100% + 200px);
+                bottom: auto;
+                top: 50%;
+                left: auto;
+                right: calc(100% + 8px);
+                transform: translateY(-50%);
             }
 
             .thinking-header span:first-child {
