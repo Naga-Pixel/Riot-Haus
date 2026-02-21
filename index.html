@@ -1075,14 +1075,6 @@
                 overflow: visible;
             }
 
-            /* Infrastructure tooltip appears to the right (like Latency) */
-            .constraint--infrastructure[data-tooltip]::after {
-                bottom: auto;
-                top: 0;
-                left: calc(100% + 8px);
-                right: auto;
-                transform: none;
-            }
 
             .thinking-header span:first-child {
                 font-size: 1rem;
@@ -1210,33 +1202,33 @@
                 font-size: 0.6875rem;
             }
 
-            /* Mobile layout: Core System spans full width at top */
-            .constraint--core {
-                grid-column: 1 / -1;
-                grid-row: 1;
-            }
-
+            /* Mobile layout: Core System at bottom */
             .constraint--infrastructure {
                 grid-column: 1;
-                grid-row: 2;
+                grid-row: 1;
             }
 
             .constraint--latency {
                 grid-column: 2;
-                grid-row: 2;
+                grid-row: 1;
             }
 
             .constraint--compliance {
                 grid-column: 1;
-                grid-row: 3;
+                grid-row: 2;
             }
 
             .constraint--permissions {
                 grid-column: 2;
-                grid-row: 3;
+                grid-row: 2;
             }
 
             .constraint--failure {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+
+            .constraint--core {
                 grid-column: 1 / -1;
                 grid-row: 4;
             }
