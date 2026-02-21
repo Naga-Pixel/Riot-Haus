@@ -1054,18 +1054,10 @@
                 max-width: 100%;
             }
 
-            /* Disable hover tooltips on touch devices, enable click-based */
-            .arch-module[data-tooltip]:hover::after,
-            .constraint-box[data-tooltip]:hover::after {
-                opacity: 0;
-                visibility: hidden;
-            }
-
-            .arch-module[data-tooltip].tooltip-visible::after,
-            .constraint-box[data-tooltip].tooltip-visible::after {
-                opacity: 1;
-                visibility: visible;
-                display: block;
+            /* Disable all tooltips on mobile */
+            .arch-module[data-tooltip]::after,
+            .constraint-box[data-tooltip]::after {
+                display: none !important;
             }
 
             .thinking-header span:first-child {
@@ -1598,40 +1590,6 @@
             navLinks.classList.remove('is-open');
         });
     });
-
-    // Mobile tooltip handling - show tooltip on tap
-    function initMobileTooltips() {
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-        if (!isMobile) return;
-
-        const tooltipElements = document.querySelectorAll('[data-tooltip]');
-        let activeTooltip = null;
-
-        tooltipElements.forEach(el => {
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-
-                // Hide previously active tooltip
-                if (activeTooltip && activeTooltip !== el) {
-                    activeTooltip.classList.remove('tooltip-visible');
-                }
-
-                // Toggle current tooltip
-                el.classList.toggle('tooltip-visible');
-                activeTooltip = el.classList.contains('tooltip-visible') ? el : null;
-            });
-        });
-
-        // Hide tooltip when clicking elsewhere
-        document.addEventListener('click', () => {
-            if (activeTooltip) {
-                activeTooltip.classList.remove('tooltip-visible');
-                activeTooltip = null;
-            }
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', initMobileTooltips);
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script>
