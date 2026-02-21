@@ -1182,6 +1182,7 @@
 
             .constraints-grid {
                 grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto;
                 gap: 6px;
             }
 
@@ -1193,40 +1194,35 @@
                 font-size: 0.6875rem;
             }
 
-            /* Fix constraints layout on mobile - Core System should be first */
-            .constraints-grid {
-                grid-template-columns: 1fr;
-            }
-
+            /* Mobile layout: Core System spans full width at top */
             .constraint--core {
-                grid-column: 1;
+                grid-column: 1 / -1;
                 grid-row: 1;
-                order: -1;
             }
 
             .constraint--infrastructure {
                 grid-column: 1;
-                order: 0;
+                grid-row: 2;
             }
 
             .constraint--latency {
-                grid-column: 1;
-                order: 1;
+                grid-column: 2;
+                grid-row: 2;
             }
 
             .constraint--compliance {
                 grid-column: 1;
-                order: 2;
+                grid-row: 3;
             }
 
             .constraint--permissions {
-                grid-column: 1;
-                order: 3;
+                grid-column: 2;
+                grid-row: 3;
             }
 
             .constraint--failure {
-                grid-column: 1;
-                order: 4;
+                grid-column: 1 / -1;
+                grid-row: 4;
             }
 
             .thinking-header {
