@@ -1075,12 +1075,12 @@
                 overflow: visible;
             }
 
-            /* Infrastructure tooltip appears to the left */
+            /* Infrastructure tooltip appears to the right (like Latency) */
             .constraint--infrastructure[data-tooltip]::after {
                 bottom: auto;
                 top: 0;
-                left: auto;
-                right: calc(100% + 8px);
+                left: calc(100% + 8px);
+                right: auto;
                 transform: none;
             }
 
