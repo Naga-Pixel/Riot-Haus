@@ -1074,20 +1074,21 @@
                 overflow: visible;
             }
 
-            /* Position tooltips relative to the grid, not individual boxes */
+            /* Position tooltips below the grid on mobile */
             .constraint-box {
                 position: static;
             }
 
             .constraint-box[data-tooltip]::after {
                 position: absolute;
-                bottom: 100%;
+                bottom: auto;
+                top: 100%;
                 left: 16px;
                 right: 16px;
                 width: auto;
                 max-width: none;
                 transform: none;
-                margin-bottom: 8px;
+                margin-top: 8px;
             }
 
 
@@ -1217,33 +1218,33 @@
                 font-size: 0.6875rem;
             }
 
-            /* Mobile layout: Core System at bottom */
+            /* Mobile layout: Core System at top */
+            .constraint--core {
+                grid-column: 1 / -1;
+                grid-row: 1;
+            }
+
             .constraint--infrastructure {
                 grid-column: 1;
-                grid-row: 1;
+                grid-row: 2;
             }
 
             .constraint--latency {
                 grid-column: 2;
-                grid-row: 1;
+                grid-row: 2;
             }
 
             .constraint--compliance {
                 grid-column: 1;
-                grid-row: 2;
+                grid-row: 3;
             }
 
             .constraint--permissions {
                 grid-column: 2;
-                grid-row: 2;
-            }
-
-            .constraint--failure {
-                grid-column: 1 / -1;
                 grid-row: 3;
             }
 
-            .constraint--core {
+            .constraint--failure {
                 grid-column: 1 / -1;
                 grid-row: 4;
             }
