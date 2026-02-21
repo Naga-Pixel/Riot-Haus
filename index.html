@@ -40,6 +40,7 @@
             line-height: 1.6;
             color: var(--black);
             background: var(--white);
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Navigation */
@@ -103,6 +104,38 @@
 
         .nav-links a:hover::after {
             width: 100%;
+        }
+
+        /* Hamburger Menu */
+        .nav-burger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .nav-burger span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--black);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .nav-burger.is-open span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .nav-burger.is-open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-burger.is-open span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
         }
 
         /* Sections */
@@ -913,12 +946,43 @@
                 padding: 16px 20px;
             }
 
+            .nav-burger {
+                display: flex;
+            }
+
             .nav-links {
-                gap: 16px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 32px;
+                background: var(--white);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                z-index: 100;
+            }
+
+            .nav-links.is-open {
+                opacity: 1;
+                visibility: visible;
             }
 
             .nav-links a {
-                font-size: 0.75rem;
+                font-size: 1.5rem;
+            }
+
+            .nav-links a::after {
+                display: none;
+            }
+
+            /* Hide asterisk on mobile */
+            .arch-module--feature .arch-module-detail {
+                display: none;
             }
 
             section {
@@ -942,7 +1006,7 @@
                 padding-left: 20px;
                 padding-right: 20px;
                 padding-bottom: 60px;
-                min-height: auto;
+                min-height: 100vh;
             }
 
             .hero-title {
@@ -990,10 +1054,18 @@
                 max-width: 100%;
             }
 
-            /* Disable tooltips on touch devices */
-            .arch-module[data-tooltip]::after,
-            .constraint-box[data-tooltip]::after {
-                display: none;
+            /* Disable hover tooltips on touch devices, enable click-based */
+            .arch-module[data-tooltip]:hover::after,
+            .constraint-box[data-tooltip]:hover::after {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .arch-module[data-tooltip].tooltip-visible::after,
+            .constraint-box[data-tooltip].tooltip-visible::after {
+                opacity: 1;
+                visibility: visible;
+                display: block;
             }
 
             .thinking-header span:first-child {
@@ -1044,14 +1116,15 @@
             }
 
             .hero {
-                padding-top: 80px;
+                padding-top: 100px;
                 padding-left: 16px;
                 padding-right: 16px;
                 padding-bottom: 48px;
+                min-height: 100vh;
             }
 
             .hero-title {
-                font-size: 3rem;
+                font-size: 3.5rem;
                 margin-bottom: 24px;
             }
 
@@ -1120,8 +1193,40 @@
                 font-size: 0.6875rem;
             }
 
+            /* Fix constraints layout on mobile - Core System should be first */
+            .constraints-grid {
+                grid-template-columns: 1fr;
+            }
+
             .constraint--core {
-                grid-column: span 2;
+                grid-column: 1;
+                grid-row: 1;
+                order: -1;
+            }
+
+            .constraint--infrastructure {
+                grid-column: 1;
+                order: 0;
+            }
+
+            .constraint--latency {
+                grid-column: 1;
+                order: 1;
+            }
+
+            .constraint--compliance {
+                grid-column: 1;
+                order: 2;
+            }
+
+            .constraint--permissions {
+                grid-column: 1;
+                order: 3;
+            }
+
+            .constraint--failure {
+                grid-column: 1;
+                order: 4;
             }
 
             .thinking-header {
@@ -1132,10 +1237,7 @@
                 font-size: 0.9375rem;
             }
 
-            .thinking-content {
-                max-height: none;
-            }
-
+            /* Fix accordion - ensure it stays closed by default */
             .thinking-item.is-open .thinking-content {
                 max-height: 400px;
             }
@@ -1175,6 +1277,11 @@
             <a href="#system-01">System 01</a>
             <a href="#thinking">Thinking</a>
             <a href="#about">About</a>
+        </div>
+        <div class="nav-burger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     </nav>
 
@@ -1477,6 +1584,59 @@
         </div>
     </footer>
 
+    <script>
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+        const burger = document.querySelector('.nav-burger');
+        const navLinks = document.querySelector('.nav-links');
+        burger.classList.toggle('is-open');
+        navLinks.classList.toggle('is-open');
+    }
+
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            const burger = document.querySelector('.nav-burger');
+            const navLinks = document.querySelector('.nav-links');
+            burger.classList.remove('is-open');
+            navLinks.classList.remove('is-open');
+        });
+    });
+
+    // Mobile tooltip handling - show tooltip on tap
+    function initMobileTooltips() {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) return;
+
+        const tooltipElements = document.querySelectorAll('[data-tooltip]');
+        let activeTooltip = null;
+
+        tooltipElements.forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                // Hide previously active tooltip
+                if (activeTooltip && activeTooltip !== el) {
+                    activeTooltip.classList.remove('tooltip-visible');
+                }
+
+                // Toggle current tooltip
+                el.classList.toggle('tooltip-visible');
+                activeTooltip = el.classList.contains('tooltip-visible') ? el : null;
+            });
+        });
+
+        // Hide tooltip when clicking elsewhere
+        document.addEventListener('click', () => {
+            if (activeTooltip) {
+                activeTooltip.classList.remove('tooltip-visible');
+                activeTooltip = null;
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initMobileTooltips);
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script>
     (function() {
