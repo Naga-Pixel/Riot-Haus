@@ -1075,6 +1075,11 @@
                 overflow: visible;
             }
 
+            /* Infrastructure tooltip appears above Core System */
+            .constraint--infrastructure[data-tooltip]::after {
+                bottom: calc(100% + 100px);
+            }
+
             .thinking-header span:first-child {
                 font-size: 1rem;
             }
