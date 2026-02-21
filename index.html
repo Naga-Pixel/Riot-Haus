@@ -1054,10 +1054,23 @@
                 max-width: 100%;
             }
 
-            /* Disable all tooltips on mobile */
-            .arch-module[data-tooltip]::after,
+            /* Disable hover tooltips on mobile, enable click-based */
+            .arch-module[data-tooltip]:hover::after,
+            .constraint-box[data-tooltip]:hover::after {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .arch-module[data-tooltip].tooltip-visible::after,
+            .constraint-box[data-tooltip].tooltip-visible::after {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            /* Fix constraint tooltips to appear below on mobile */
             .constraint-box[data-tooltip]::after {
-                display: none !important;
+                bottom: auto;
+                top: calc(100% + 8px);
             }
 
             .thinking-header span:first-child {
@@ -1590,6 +1603,32 @@
             navLinks.classList.remove('is-open');
         });
     });
+
+    // Mobile tooltip handling - show on tap, hide on tap elsewhere
+    (function() {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) return;
+
+        let activeTooltip = null;
+
+        document.querySelectorAll('[data-tooltip]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (activeTooltip && activeTooltip !== el) {
+                    activeTooltip.classList.remove('tooltip-visible');
+                }
+                el.classList.toggle('tooltip-visible');
+                activeTooltip = el.classList.contains('tooltip-visible') ? el : null;
+            });
+        });
+
+        document.addEventListener('click', () => {
+            if (activeTooltip) {
+                activeTooltip.classList.remove('tooltip-visible');
+                activeTooltip = null;
+            }
+        });
+    })();
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script>
