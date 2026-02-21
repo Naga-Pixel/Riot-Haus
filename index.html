@@ -138,6 +138,10 @@
             transform: rotate(-45deg) translate(5px, -5px);
         }
 
+        .nav-links-logo {
+            display: none;
+        }
+
         /* Sections */
         section {
             padding: 120px 48px;
@@ -982,6 +986,21 @@
                 visibility: visible;
             }
 
+            .nav-links-logo {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                background: var(--black);
+                color: var(--white);
+                font-family: var(--font-headline);
+                font-weight: 700;
+                font-size: 1.75rem;
+                position: absolute;
+                top: 40px;
+            }
+
             .nav-links a {
                 font-size: 3rem;
             }
@@ -1295,6 +1314,7 @@
     <nav>
         <a href="#" class="nav-logo"><span class="nav-logo-icon">R</span></a>
         <div class="nav-links">
+            <span class="nav-links-logo">R</span>
             <a href="#systems">Systems</a>
             <a href="#system-01">System 01</a>
             <a href="#thinking">Thinking</a>
