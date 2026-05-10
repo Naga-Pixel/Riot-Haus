@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bastardo Ingrato</title>
+    <meta name="description" content="Sei un Bastardo Ingrato? Scopri l'app che hackera la gratitudine.">
+    <style>
+        @font-face {
+            font-family: 'ZalandoSansExpanded';
+            src: url('assets/fonts/ZalandoSansExpanded-ExtraBold.ttf') format('truetype');
+            font-weight: 800;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'NotoSansMono';
+            src: url('assets/fonts/NotoSansMono-Variable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --dark: #00181e;
+            --pink: #eb7783;
+            --mint: #7de4c4;
+            --purple: #530b92;
+            --font-headline: 'ZalandoSansExpanded', 'Arial Black', sans-serif;
+            --font-body: 'NotoSansMono', 'Courier New', monospace;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--white);
+        }
+
+        /* Hero section — full-width banana background */
+        .hero {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 100vh;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .hero-banana {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            height: 95%;
+            width: auto;
+            object-fit: contain;
+            z-index: 1;
+        }
+
+        .hero-logo {
+            position: relative;
+            z-index: 2;
+            padding: 32px 48px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+        }
+
+        .hero-text {
+            position: relative;
+            z-index: 2;
+            padding: 0 48px 48px;
+        }
+
+        .hero-text .subtitle {
+            font-family: var(--font-body);
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .hero-text h1 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 72px;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            color: var(--dark);
+        }
+
+        /* Body text */
+        .body-text {
+            padding: 72px 80px;
+            background: var(--dark);
+        }
+
+        .body-text p {
+            font-family: var(--font-headline);
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.45;
+            margin-bottom: 0;
+            color: var(--white);
+        }
+
+        .body-text p + p {
+            margin-top: 0;
+        }
+
+        .body-text p.spacer-before {
+            margin-top: 36px;
+        }
+
+        /* Phone + Concept */
+        .phone-concept {
+            display: grid;
+            grid-template-columns: 45fr 55fr;
+            column-gap: 80px;
+            padding: 80px;
+            align-items: center;
+            background: var(--white);
+        }
+
+        .phone-mockup {
+            display: flex;
+            justify-content: center;
+        }
+
+        .phone-mockup img {
+            width: 100%;
+            max-width: 380px;
+            display: block;
+        }
+
+        .concept-card {
+            padding: 0;
+        }
+
+        .concept-card h2 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 36px;
+            margin-bottom: 24px;
+            color: var(--dark);
+        }
+
+        .concept-card p {
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.75;
+            color: var(--dark);
+            max-width: 85%;
+        }
+
+        /* Bottom cards */
+        .bottom-cards {
+            display: grid;
+            grid-template-columns: 45fr 55fr;
+            column-gap: 80px;
+            padding: 80px 140px;
+            align-items: start;
+            background: var(--white);
+        }
+
+        .card-imbastarditore h3 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 36px;
+            color: var(--dark);
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .card-imbastarditore p {
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.75;
+            color: var(--dark);
+        }
+
+        .card-profumo h3 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 26px;
+            color: var(--dark);
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .mock-input {
+            background: #ebebeb;
+            border-radius: 16px;
+            height: 180px;
+            margin-bottom: 20px;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 20px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--dark);
+            display: block;
+        }
+
+        .mock-input::placeholder {
+            color: #aaa;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .pill {
+            border-radius: 50px;
+            padding: 14px 28px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            transition: opacity 0.1s ease;
+        }
+
+        .pill:active {
+            opacity: 0.7;
+        }
+
+        .pill-fine, .pill-back {
+            background: var(--dark);
+            color: var(--white);
+            min-width: 100px;
+        }
+
+        .pill-back img {
+            filter: brightness(0) invert(1);
+            height: 48px;
+        }
+
+        .pill-skip {
+            background: var(--pink);
+            color: var(--white);
+            width: 120px;
+        }
+
+        .pill-next {
+            background: var(--mint);
+            color: var(--dark);
+            width: 120px;
+        }
+
+        .pill img {
+            height: 20px;
+            width: auto;
+            display: block;
+        }
+
+        .pill-next img {
+            height: 24px;
+        }
+
+        /* Review overlay */
+        .review-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .review-header {
+            padding: 40px 32px 24px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .review-header h2 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 28px;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .name-input {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid var(--dark);
+            padding: 12px 0;
+            font-family: var(--font-body);
+            font-size: 16px;
+            color: var(--dark);
+            background: transparent;
+            outline: none;
+        }
+
+        .name-input::placeholder {
+            color: #aaa;
+        }
+
+        .review-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .review-item {
+            margin-bottom: 36px;
+        }
+
+        .review-item label {
+            display: block;
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .review-item textarea {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            padding: 8px 0;
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--dark);
+            background: transparent;
+            resize: none;
+            outline: none;
+            overflow: hidden;
+        }
+
+        .review-footer {
+            padding: 16px 32px 40px;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .submit-all {
+            width: 100%;
+            background: var(--dark);
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 700;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.1s ease;
+        }
+
+        .submit-all:active {
+            opacity: 0.7;
+        }
+
+        .review-thanks {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 48px;
+            text-align: center;
+        }
+
+        .review-thanks h2 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 48px;
+            color: var(--dark);
+            margin-bottom: 16px;
+        }
+
+        .review-thanks p {
+            font-family: var(--font-body);
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            display: flex;
+            justify-content: flex-start;
+            padding: 64px 80px;
+        }
+
+        footer .logo-icon {
+            width: 72px;
+            height: 72px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero — full-width with banana background -->
+    <section class="hero">
+        <div class="hero-logo">
+            <img src="assets/Logo.svg" alt="Bastardo Ingrato" class="logo-icon">
+        </div>
+        <img src="assets/2661.jpg" alt="" class="hero-banana">
+        <div class="hero-text">
+            <p class="subtitle">Sei un</p>
+            <h1>Bastardo<br>Ingrato?</h1>
+        </div>
+    </section>
+
+    <!-- Body text -->
+    <section class="body-text">
+        <p>Siamo tutti d'accordo: la «gratitudine» di solito puzza di incenso, ascelle e tappetini da yoga. Ma la biochimica non mente: scrivere due righe su quello che non fa schifo nella vita abbatte il cortisolo del 23%, spara la dopamina in circolo come un caffè doppio corretto Borghetti e riduce il rischio di depressione del 41% nei soggetti a rischio.</p>
+        <p>Alcune zecche più tecnologiche della media, hanno già pensato di digitalizzare la gratitudine, peccato che il risultato fino ad ora sia stato agghiacciante e dopo tre giorni preferiresti strapparti le dita a morsi piuttosto che scrivere «grazie al sole».</p>
+        <p class="spacer-before">È qui che entri in gioco tu.</p>
+        <p class="spacer-before">Vogliamo hackerare il cervello della gente usando la scienza, ma ci serve il tuo cinismo per non farla addormentare. Aiutaci a trasformare un esercizio biologico in uno svago quotidiano di sogghigni e pugni nello stomaco, per evitare di rimanere per sempre dei bastardi ingrati.</p>
+    </section>
+
+    <!-- Phone + Concept -->
+    <section class="phone-concept">
+        <div class="phone-mockup">
+            <img src="assets/phone.png" alt="App Bastardo Ingrato">
+        </div>
+        <div class="concept-card">
+            <h2>Il concetto:</h2>
+            <p>Questa è una schermata dell'app. Fondamentalmente vogliamo trasformare «Cosa ti ha fatto sorridere oggi» in «Cosa non ti ha fatto venire la diarrea oggi». L'usuario inizia a rispondere ad una o due al giorno fino ad arrivare a 5 o più per almeno 21 giorni. Dopo questo periodo si forma generalmente un'abitudine e si incominciano a notare i primi risultati.<br>Le push notifications dovranno essere altrettanto cattive e assurde per mantenere l'interesse in maniera divertente, parodizzando le wellness app, ma anche bullizzando il bastardo ingrato.</p>
+        </div>
+    </section>
+
+    <!-- Bottom cards -->
+    <section class="bottom-cards">
+        <div class="card-imbastarditore">
+            <h3>L'inbastarditore</h3>
+            <p>Qui ci sono frasi tipiche delle app di gratitudine che vanno «inbastadite». Puoi scrivere una o più versioni e poi inviare (→). Se non ti viene in mente nulla semplicemente salta (x) e ne apparirà un altra di seguito che magari ti ispira di più. Alla fine vedrai tutte le frasi che hai creato e potrai modificarle un ultima volta se vuoi prima di inviare definitivamente. Buon divertimento, ma soprattutto GRAZIE!</p>
+        </div>
+        <div class="card-profumo">
+            <h3 id="prompt-heading">Quale profumo ti evoca un bel ricordo?</h3>
+            <textarea class="mock-input" placeholder="Scrivi qui..."></textarea>
+            <div class="button-row">
+                <button class="pill pill-back"><img src="assets/back.svg" alt="Indietro"></button>
+                <button class="pill pill-fine">Fine</button>
+                <button class="pill pill-skip"><img src="assets/x.svg" alt="Salta"></button>
+                <button class="pill pill-next"><img src="assets/arrow.svg" alt="Invia"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <img src="assets/Logo.svg" alt="Bastardo Ingrato" class="logo-icon">
+    </footer>
+    <!-- Review overlay -->
+    <div id="review-overlay" class="review-overlay" style="display:none">
+        <div class="review-header">
+            <h2>Le tue risposte</h2>
+            <input type="text" id="user-name" class="name-input" placeholder="Il tuo nome" autocomplete="name">
+        </div>
+        <div class="review-body" id="review-body"></div>
+        <div class="review-footer">
+            <button id="btn-submit-all" class="submit-all">Invia tutto</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://eqavyxuhkdvhnpfytowj.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_D_kB-YFd79qvUL6mhdODuQ_KWMuZwS2';
+        const sessionId = crypto.randomUUID();
+
+        const textarea = document.querySelector('.mock-input');
+        const btnNext = document.querySelector('.pill-next');
+        const btnSkip = document.querySelector('.pill-skip');
+        const btnFine = document.querySelector('.pill-fine');
+        const btnBack = document.querySelector('.pill-back');
+        const heading = document.getElementById('prompt-heading');
+        const overlay = document.getElementById('review-overlay');
+
+        const prompts = [
+            'Cosa ti ha fatto sorridere oggi?',
+            'Di cosa sei più orgoglioso nella tua vita in questo momento?',
+            'Qual è un tuo talento o una tua abilità per cui sei grato?',
+            'Qual è la lezione più importante che hai imparato quest\'anno?',
+            'Cosa rende la tua casa un posto speciale?',
+            'Qual è la parte della tua giornata che preferisci?',
+            'Cosa ti dà speranza per il futuro?',
+            'Qual è un traguardo che hai raggiunto, anche se piccolo?',
+            'Di cosa sei grato riguardo alla tua salute oggi?',
+            'Qual è la cosa migliore che ti è successa questa settimana?',
+            'Chi è la persona che ti ispira di più?',
+            'Quale atto di gentilezza hai ricevuto di recente?',
+            'Descrivi un amico che c\'è sempre stato per te.',
+            'Cosa apprezzi di più dei tuoi genitori?',
+            'Scrivi di qualcuno che ti ha fatto ridere oggi.',
+            'Quale conversazione ti ha lasciato una bella sensazione?',
+            'Chi è un collega che ti rende il lavoro più facile?',
+            'Pensa a un insegnante che ha cambiato la tua prospettiva.',
+            'Qual è una qualità che ammiri negli altri e che possiedi anche tu?',
+            'Di cosa sei grato nella tua relazione attuale o passata?',
+            'Qual è un suono che trovi rilassante?',
+            'Descrivi un pasto delizioso che hai mangiato di recente.',
+            'Qual è il tuo posto preferito nella natura?',
+            'Di cosa sei grato nel clima di oggi?',
+            'Quale profumo ti evoca un bel ricordo?',
+            'Qual è il libro o il film che ti ha cambiato la vita?',
+            'Cosa apprezzi della città o del quartiere in cui vivi?',
+            'Qual è un oggetto materiale che possiedi e che ti semplifica la vita?',
+            'Di cosa sei grato quando guardi fuori dalla finestra?',
+            'Qual è la tua canzone preferita del momento e perché ti rende felice?',
+            'Quale errore hai fatto che però ti ha insegnato qualcosa di utile?',
+            'Come sei cambiato in meglio negli ultimi cinque anni?',
+            'Qual è una sfida che hai superato e che ti ha reso più forte?',
+            'Cosa ti piace del tuo lavoro o della tua carriera?',
+            'Qual è un vizio o una cattiva abitudine che sei riuscito a cambiare?',
+            'Di cosa sei grato nel tuo percorso di crescita personale?',
+            'Quale paura sei riuscito ad affrontare recentemente?',
+            'Cosa ti rende unico rispetto a chiunque altro?',
+            'Qual è una risorsa o uno strumento che ti aiuta a gestire lo stress?',
+            'Di quale decisione presa nel passato sei ancora grato oggi?',
+            'Cosa hai apprezzato della tua tazza di caffè o tè stamattina?',
+            'Di quale comfort moderno non potresti fare a meno?',
+            'Qual è stata la cosa più bella che hai visto mentre andavi al lavoro?',
+            'Cosa ti rende grato di avere un corpo che funziona?',
+            'Qual è un piccolo piacere quotidiano che dai per scontato?',
+            'Descrivi un momento di pace che hai vissuto oggi.',
+            'Quale capo d\'abbigliamento ti fa sentire bene quando lo indossi?',
+            'Di cosa sei grato riguardo al tuo letto o al tuo riposo?',
+            'Qual è un hobby che ti permette di staccare la spina?',
+            'Cosa ti fa sentire fortunato di essere vivo proprio in questo momento storico?'
+        ];
+
+        for (let i = prompts.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [prompts[i], prompts[j]] = [prompts[j], prompts[i]];
+        }
+
+        let promptIndex = 0;
+        let typing = false;
+        const submittedTexts = new Map();
+
+        function typewriter(text, speed = 20) {
+            if (typing) return;
+            typing = true;
+            heading.textContent = '';
+            let i = 0;
+            const interval = setInterval(() => {
+                heading.textContent += text[i++];
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    typing = false;
+                }
+            }, speed);
+        }
+
+        function advancePrompt() {
+            promptIndex = (promptIndex + 1) % prompts.length;
+            typewriter(prompts[promptIndex]);
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        btnNext.addEventListener('click', () => {
+            const text = textarea.value.trim();
+            if (!text) return;
+            submittedTexts.set(promptIndex, text);
+            textarea.value = '';
+            advancePrompt();
+        });
+
+        btnSkip.addEventListener('click', () => {
+            textarea.value = '';
+            advancePrompt();
+        });
+
+        btnBack.addEventListener('click', () => {
+            if (promptIndex === 0) return;
+            promptIndex--;
+            textarea.value = submittedTexts.get(promptIndex) || '';
+            typewriter(prompts[promptIndex]);
+        });
+
+        btnFine.addEventListener('click', () => {
+            const currentText = textarea.value.trim();
+            if (currentText) submittedTexts.set(promptIndex, currentText);
+            if (submittedTexts.size === 0) return;
+
+            const reviewBody = document.getElementById('review-body');
+            reviewBody.innerHTML = '';
+
+            for (const [index, text] of submittedTexts) {
+                const item = document.createElement('div');
+                item.className = 'review-item';
+                item.dataset.index = index;
+                item.innerHTML = `<label>${prompts[index]}</label><textarea rows="2">${text}</textarea>`;
+                reviewBody.appendChild(item);
+            }
+
+            overlay.style.display = 'flex';
+
+            requestAnimationFrame(() => {
+                reviewBody.querySelectorAll('textarea').forEach(ta => {
+                    autoResize(ta);
+                    ta.addEventListener('input', () => autoResize(ta));
+                });
+            });
+        });
+
+        document.getElementById('btn-submit-all').addEventListener('click', async () => {
+            const name = document.getElementById('user-name').value.trim();
+            const items = document.querySelectorAll('.review-item');
+
+            await Promise.all(Array.from(items).map(item => {
+                const index = parseInt(item.dataset.index);
+                const text = item.querySelector('textarea').value.trim();
+                return fetch(`${SUPABASE_URL}/rest/v1/Bastard%20Submissions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ text, name, prompt: prompts[index], session_id: sessionId })
+                });
+            }));
+
+            overlay.innerHTML = `
+                <div class="review-thanks">
+                    <h2>Grazie!</h2>
+                    <p>Le tue risposte sono state inviate.</p>
+                </div>`;
+        });
+    </script>
+</body>
+</html>
