@@ -690,6 +690,8 @@
             [prompts[i], prompts[j]] = [prompts[j], prompts[i]];
         }
 
+        heading.textContent = prompts[0];
+
         let promptIndex = 0;
         let typing = false;
         const submittedTexts = new Map();
