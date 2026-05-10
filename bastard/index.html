@@ -419,6 +419,126 @@
             color: var(--dark);
         }
 
+        /* ── Mobile ──────────────────────────────── */
+        @media (max-width: 768px) {
+
+            /* Hero */
+            .hero {
+                aspect-ratio: 4 / 3;
+            }
+
+            .hero-logo {
+                padding: 20px 24px;
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .hero-text {
+                padding: 0 24px 28px;
+            }
+
+            .hero-text .subtitle {
+                font-size: 14px;
+            }
+
+            .hero-text h1 {
+                font-size: 44px;
+            }
+
+            /* Body text */
+            .body-text {
+                padding: 48px 28px;
+            }
+
+            .body-text p {
+                font-size: 18px;
+            }
+
+            .body-text p.spacer-before {
+                margin-top: 24px;
+            }
+
+            /* Phone + Concept — stack vertically */
+            .phone-concept {
+                grid-template-columns: 1fr;
+                padding: 48px 28px;
+                column-gap: 0;
+                row-gap: 40px;
+            }
+
+            .phone-mockup img {
+                max-width: 240px;
+            }
+
+            .concept-card h2 {
+                font-size: 26px;
+                margin-bottom: 16px;
+            }
+
+            .concept-card p {
+                max-width: 100%;
+                font-size: 13px;
+            }
+
+            /* Bottom cards — stack vertically */
+            .bottom-cards {
+                grid-template-columns: 1fr;
+                padding: 48px 28px;
+                row-gap: 48px;
+            }
+
+            .card-imbastarditore h3 {
+                font-size: 28px;
+            }
+
+            .card-profumo h3 {
+                font-size: 20px;
+            }
+
+            /* Buttons — distribute evenly */
+            .button-row {
+                gap: 8px;
+            }
+
+            .pill {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .pill-fine,
+            .pill-back {
+                min-width: unset;
+                flex: 1;
+            }
+
+            .pill-skip,
+            .pill-next {
+                width: unset;
+                flex: 1;
+            }
+
+            .pill-back img {
+                height: 28px;
+            }
+
+            .pill-next img {
+                height: 20px;
+            }
+
+            /* Footer */
+            footer {
+                padding: 40px 28px;
+            }
+
+            footer .logo-icon {
+                width: 56px;
+                height: 56px;
+            }
+        }
+
         /* Footer */
         footer {
             background: var(--dark);
