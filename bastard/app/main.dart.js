@@ -77665,7 +77665,7 @@ for(s=0;s<5;++s){r=B.jy[s]
 q=p.c
 q.toString
 A.aH_(new A.pv(r),q)}}},
-N(a){var s=null,r=A.eC('"La vita \xe8 troppo breve per imparare il tedesco."',s,s,s,B.yd,B.cc,s),q=A.eC("\u2014 Oscar Wilde",s,s,s,B.yb,s,s),p=A.hd(50)
+N(a){var s=null,r=A.eC('"La vita \xe8 troppo breve per imparare il tedesco su Duolingo."',s,s,s,B.yd,B.cc,s),q=A.eC("\u2014 Oscar Wilde",s,s,s,B.yb,s,s),p=A.hd(50)
 return A.a5S(B.f9,A.y8(new A.cy(B.iM,A.jb(A.d([B.hE,r,B.ku,q,B.hE,A.kC(A.jp(s,A.fJ(A.alw(B.F3,B.c7),B.z,s,new A.cR(B.k,s,s,p,s,s,B.an),s,s,B.me,s),B.aa,!1,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,new A.aec(a),s,s,s),s,s),B.xO],t.E),B.bq,B.jP,B.cG),s),!0))}}
 A.aec.prototype={
 $0(){var s=A.lc(this.a,!1),r=A.amc(A.HD(new A.aeb(),null,t.z),B.kX,!1,null),q=s.e
@@ -81417,11 +81417,11 @@ B.TS=s([],t.E)
 B.Fi=s([],t.t)
 B.n4=s([],t.ee)
 B.Fo=s([],t.XS)
-B.n6=s(["Ringrazio che oggi quel represso del mio capo non ha trovato una scusa per venirmi a cacare il cazzo. Scrivi qualcosa di simile.","Qualcosa che i tuoi nemici non hanno\u2026","Sono contento di non essere un bambino vittoriano o roba simile.","Sono contento di non avere un nematode che mi ammicca nel bulbo oculare.","Sono contento di non essere stupido come sembro."],t.s)
 B.Ib=new A.f(0,2)
 B.zn=new A.d_(0.75,B.cU,B.lM,B.Ib,1.5)
 B.FA=s([B.zn],t.sq)
 B.ee=s([B.ci,B.c2,B.f0,B.f1,B.i8],t.QP)
+B.n6=s(["Ringrazio che oggi quel represso del mio capo non ha trovato una scusa per venirmi a cacare il cazzo. Scrivi qualcosa di simile.","Grazie graziella e grazie al cazzo non valgono. Qualcosa tipo: Ho ancora entrambe le gambe o che bella sega mi sono sparato l'altro giorno.","Sono contento di non essere un bambino vittoriano o roba simile.","Sono contento di non avere un nematode che mi ammicca nel bulbo oculare.","Sono contento di non essere stupido come sembro."],t.s)
 B.Et=s([0.001200833568784504,0.002389694492170889,0.0002795742885861124],t.n)
 B.Fg=s([0.0005891086651375999,0.0029785502573438758,0.0003270666104008398],t.n)
 B.EE=s([0.00010146692491640572,0.0005364214359186694,0.0032979401770712076],t.n)
