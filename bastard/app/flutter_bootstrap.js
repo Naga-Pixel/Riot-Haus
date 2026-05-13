@@ -56,10 +56,26 @@ _flutter.loader.load({});
 // Register the service worker for offline support. Skip on dev hosts so
 // it doesn't fight with `flutter run` hot reload or serve stale assets
 // from a previous build.
+//
+// Auto-reload on update: when a new SW activates and claims this page
+// mid-session, reload once so the user sees the new build immediately
+// (otherwise the page would keep running with the old cached main.dart.js
+// until the next manual relaunch). We only reload if there was already a
+// controlling SW when the page loaded; on the very first visit there's
+// no old content to swap out, so we skip the reload.
 (() => {
   if (!('serviceWorker' in navigator)) return;
   const devHosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]'];
   if (devHosts.includes(location.hostname)) return;
+
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
       .catch((err) => console.warn('SW registration failed:', err));
