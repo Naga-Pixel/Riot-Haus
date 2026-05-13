@@ -18,8 +18,22 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="A gratitude journal with absolutely no patience for your excuses.">
   <meta name="theme-color" content="#00181E">
+
+  <!-- Reset browser defaults and paint the page bg the same as the card top
+       so the iOS status bar (which extends over the page with
+       apple-mobile-web-app-status-bar-style=black-translucent) blends
+       seamlessly with the card and there is no 1px seam. -->
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #00181E;
+      overflow: hidden;
+    }
+  </style>
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
