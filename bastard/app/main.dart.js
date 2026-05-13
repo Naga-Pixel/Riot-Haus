@@ -945,7 +945,7 @@ p.ZK()
 return p},
 ayt(a){return new A.Y3($.ac,a)},
 akM(){var s,r,q,p,o=v.G,n=o.window,m=A.ay4(n.navigator)
-if(m==null||m.length===0)return B.n_
+if(m==null||m.length===0)return B.n0
 s=A.d([],t.ss)
 for(n=m.length,r=0;r<m.length;m.length===n||(0,A.t)(m),++r){q=m[r]
 p=new o.Intl.Locale(q)
@@ -6962,8 +6962,8 @@ s=B.c.dF((a-2)/1,0,13)
 r=B.i.dF(B.c.fT(s),0,12)
 q=s-r
 p=1-q
-o=B.n3[r]
-n=B.n3[r+1]
+o=B.n4[r]
+n=B.n4[r+1]
 return new A.a9(p*o.a+q*n.a,p*o.b+q*n.b)},
 aD1(a){var s,r,q,p,o,n,m
 if(a>5){s=a-5
@@ -10432,8 +10432,8 @@ break
 case 4:s=l.a
 s===$&&A.a()
 s=A.bb(s,200)
-r=A.bb(A.WT(l,B.n0,B.EF),24)
-q=A.bb(A.WT(l,B.n0,B.Fb),32)
+r=A.bb(A.WT(l,B.n1,B.EF),24)
+q=A.bb(A.WT(l,B.n1,B.Fb),32)
 p=A.bb(l.a,10)
 o=A.bb(l.a,12)
 l.d===$&&A.a()
@@ -10443,8 +10443,8 @@ break
 case 5:s=l.a
 s===$&&A.a()
 s=A.bb(A.wR(s+240),40)
-r=A.bb(A.WT(l,B.n2,B.FK),24)
-q=A.bb(A.WT(l,B.n2,B.FL),32)
+r=A.bb(A.WT(l,B.n3,B.FK),24)
+q=A.bb(A.WT(l,B.n3,B.FL),32)
 p=A.bb(l.a+15,8)
 o=A.bb(l.a+15,12)
 l.d===$&&A.a()
@@ -10868,7 +10868,7 @@ aoM(a,b,c){if(b!=null&&!b.j(0,B.D))return A.aog(b.by(A.ayp(c)),a)
 return a},
 ayp(a){var s,r,q,p,o,n
 if(a<0)return 0
-for(s=0;r=B.n1[s],q=r.a,a>=q;){if(a===q||s+1===6)return r.b;++s}p=B.n1[s-1]
+for(s=0;r=B.n2[s],q=r.a,a>=q;){if(a===q||s+1===6)return r.b;++s}p=B.n2[s-1]
 o=p.a
 n=p.b
 return n+(a-o)/(q-o)*(r.b-n)},
@@ -23709,7 +23709,7 @@ return A.O($async$amU,r)},
 KT:function KT(a){this.a=a},
 aa2:function aa2(){},
 awY(){var s,r=A.d([],t.n7)
-for(s=0;s<5;++s){r.push(new A.kB(s,B.n6[s],B.jy[B.i.bl(s,5)],!1,null,null))
+for(s=0;s<5;++s){r.push(new A.kB(s,B.n_[s],B.jy[B.i.bl(s,5)],!1,null,null))
 if(s===1)r.push(new A.kB(-1,"","assets/images/asset_3.png",!0,'"Dio c\'\xe8, ma ci odia."',"\u2014 Freak Antoni"))}return r},
 kB:function kB(a,b,c,d,e,f){var _=this
 _.a=a
@@ -34599,11 +34599,11 @@ gSY(){var s=this.a
 if(s instanceof A.e4)return s
 return this.a=new A.e4(s)},
 gak9(){var s,r,q,p,o,n=this
-if(n.c===1)return B.n4
+if(n.c===1)return B.n5
 s=n.d
 r=J.bq(s)
 q=r.gF(s)-J.cK(n.e)-n.f
-if(q===0)return B.n4
+if(q===0)return B.n5
 p=[]
 for(o=0;o<q;++o)p.push(r.h(s,o))
 p.$flags=3
@@ -43195,7 +43195,7 @@ n=o.e
 o=o.cx
 r=q.ga6p()
 q.a.toString
-return new A.zT(p,p,p,new A.aet(),p,p,p,p,p,n,B.Hy,p,p,p,B.Fu,q.ga6w(),o,p,B.P6,s,p,r,p,p,B.n_,!1,!1,p,p,p,new A.nc(q,t.bT))},
+return new A.zT(p,p,p,new A.aet(),p,p,p,p,p,n,B.Hy,p,p,p,B.Fu,q.ga6w(),o,p,B.P6,s,p,r,p,p,B.n0,!1,!1,p,p,p,new A.nc(q,t.bT))},
 N(a){var s,r=this.a_R(a)
 this.a.toString
 s=this.d
@@ -52573,8 +52573,8 @@ s=r.P
 r.dQ=s==null?null:s.gHd()
 a.a=!1},
 ow(a,b,c){var s,r,q,p,o=this
-o.jr=A.aqp(o.jr,B.n5)
-o.hx=A.aqp(o.hx,B.n5)
+o.jr=A.aqp(o.jr,B.n6)
+o.hx=A.aqp(o.hx,B.n6)
 s=o.jr
 r=s!=null&&!s.gZ(s)
 s=o.hx
@@ -77597,7 +77597,7 @@ $0(){var s,r,q=null,p=this.a,o=p.e
 o===$&&A.a()
 s=new A.aG(o,new A.abO(),A.Y(o).i("aG<1>")).gF(0)
 o=B.i.bl(s,5)
-r=B.n6[o]
+r=B.n_[o]
 o=B.jy[o]
 p.e.push(new A.kB(s,r,o,!1,q,q))
 o=p.f
@@ -81320,6 +81320,7 @@ B.EL=s([6.43023796,2.98020421],t.n)
 B.mZ=s([B.EK,B.DT,B.Fx,B.Fz,B.ED,B.EI,B.F5,B.EN,B.EY,B.EG,B.EL],t.zg)
 B.EC=s([B.i9,B.ia],A.ao("x<ur>"))
 B.EF=s([18,15,10,12,15,18,15,12,12],t.n)
+B.n_=s(["Ringrazio che oggi quel represso del mio capo non ha trovato una scusa per venirmi a cacare il cazzo. Scrivi qualcosa di simile.","Grazie graziella e grazie al cazzo non valgono. Qualcosa tipo: Ho ancora entrambe le gambe o che bella sega mi sono sparato l'altro giorno.","Dimmi di una volta in cui ti sei cagato in mano ma poi \xe8 finito tutto bene.","Sono contento di non avere un nematode che mi ammicca nel bulbo oculare.","Sono contento di non essere stupido come sembro."],t.s)
 B.am=new A.dS(0,"icon")
 B.aB=new A.dS(1,"input")
 B.V=new A.dS(2,"label")
@@ -81333,16 +81334,16 @@ B.bl=new A.dS(9,"counter")
 B.cg=new A.dS(10,"container")
 B.EM=s([B.am,B.aB,B.V,B.aI,B.aJ,B.aK,B.a1,B.av,B.bk,B.bl,B.cg],A.ao("x<dS>"))
 B.FT=new A.nw("en",null,"US")
-B.n_=s([B.FT],t.ss)
-B.n0=s([0,41,61,101,131,181,251,301,360],t.n)
+B.n0=s([B.FT],t.ss)
+B.n1=s([0,41,61,101,131,181,251,301,360],t.n)
 B.SB=new A.kf(0,0)
 B.SG=new A.kf(1,0.05)
 B.SE=new A.kf(3,0.08)
 B.SF=new A.kf(6,0.11)
 B.SD=new A.kf(8,0.12)
 B.SC=new A.kf(12,0.14)
-B.n1=s([B.SB,B.SG,B.SE,B.SF,B.SD,B.SC],A.ao("x<kf>"))
-B.n2=s([0,21,51,121,151,191,271,321,360],t.n)
+B.n2=s([B.SB,B.SG,B.SE,B.SF,B.SD,B.SC],A.ao("x<kf>"))
+B.n3=s([0,21,51,121,151,191,271,321,360],t.n)
 B.z3=new A.EF(2,"outer")
 B.lM=new A.C(0.09803921568627451,0,0,0,B.h)
 B.f=new A.f(0,0)
@@ -81391,7 +81392,7 @@ B.Kb=new A.a9(0.63903989,0.07759639)
 B.JT=new A.a9(0.66416338,0.0734653)
 B.JQ=new A.a9(0.68675338,0.06974996)
 B.K5=new A.a9(0.70678034,0.06529512)
-B.n3=s([B.K9,B.K8,B.JW,B.JZ,B.K7,B.JP,B.JU,B.JX,B.JS,B.K4,B.Kb,B.JT,B.JQ,B.K5],A.ao("x<+(I,I)>"))
+B.n4=s([B.K9,B.K8,B.JW,B.JZ,B.K7,B.JP,B.JU,B.JX,B.JS,B.K4,B.Kb,B.JT,B.JQ,B.K5],A.ao("x<+(I,I)>"))
 B.Fb=s([35,30,20,25,30,35,30,25,25],t.n)
 B.Fe=s(["click","scroll"],t.s)
 B.zt=new A.pn()
@@ -81399,7 +81400,7 @@ B.eA=new A.Ju(1,"page")
 B.hl=new A.dw(B.aL,B.eA)
 B.Ff=s([B.zt,B.hl],A.ao("x<aD>"))
 B.Fn=s([],t.QP)
-B.n5=s([],A.ao("x<aHB>"))
+B.n6=s([],A.ao("x<aHB>"))
 B.Fr=s([],t.p)
 B.Fs=s([],t.fJ)
 B.Fq=s([],t.ER)
@@ -81415,13 +81416,12 @@ B.Fp=s([],t.Lx)
 B.Ft=s([],t.AS)
 B.TS=s([],t.E)
 B.Fi=s([],t.t)
-B.n4=s([],t.ee)
+B.n5=s([],t.ee)
 B.Fo=s([],t.XS)
 B.Ib=new A.f(0,2)
 B.zn=new A.d_(0.75,B.cU,B.lM,B.Ib,1.5)
 B.FA=s([B.zn],t.sq)
 B.ee=s([B.ci,B.c2,B.f0,B.f1,B.i8],t.QP)
-B.n6=s(["Ringrazio che oggi quel represso del mio capo non ha trovato una scusa per venirmi a cacare il cazzo. Scrivi qualcosa di simile.","Grazie graziella e grazie al cazzo non valgono. Qualcosa tipo: Ho ancora entrambe le gambe o che bella sega mi sono sparato l'altro giorno.","Sono contento di non essere un bambino vittoriano o roba simile.","Sono contento di non avere un nematode che mi ammicca nel bulbo oculare.","Sono contento di non essere stupido come sembro."],t.s)
 B.Et=s([0.001200833568784504,0.002389694492170889,0.0002795742885861124],t.n)
 B.Fg=s([0.0005891086651375999,0.0029785502573438758,0.0003270666104008398],t.n)
 B.EE=s([0.00010146692491640572,0.0005364214359186694,0.0032979401770712076],t.n)
