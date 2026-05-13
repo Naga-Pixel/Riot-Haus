@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Install — Ungrateful Bastard</title>
   <style>
+    @font-face {
+      font-family: 'ZalandoSansExpanded';
+      src: url('../assets/fonts/ZalandoSansExpanded-ExtraBold.ttf') format('truetype');
+      font-weight: 800;
+      font-style: normal;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -28,8 +35,9 @@
     }
 
     h1 {
+      font-family: 'ZalandoSansExpanded', sans-serif;
       font-size: 28px;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: -0.3px;
       margin-bottom: 8px;
       text-align: center;
@@ -70,9 +78,10 @@
     .btn-ios {
       background: #fff;
       color: #00181E;
+      text-align: left;
     }
 
-    .btn svg {
+    .btn svg, .btn img {
       flex-shrink: 0;
     }
 
@@ -150,15 +159,14 @@
 
   <!-- Android button -->
   <a id="android-btn" class="btn btn-android" href="../app/" style="display:none;">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M17.523 0H6.477L0 12l6.477 12h11.046L24 12 17.523 0z" fill="#00181E"/>
-      <path d="M12 7a5 5 0 1 0 0 10A5 5 0 0 0 12 7zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="white"/>
-    </svg>
+    <img src="SVG/Android bastard.svg" width="24" height="24" alt="Android">
     <span class="btn-label">
       <span>Get the app</span>
       <span>Install on Android</span>
     </span>
   </a>
+
+  <div class="or-divider" id="or-divider" style="display:none;">or</div>
 
   <!-- iOS button -->
   <button id="ios-btn" class="btn btn-ios" onclick="toggleIosSteps()" style="display:none;">
@@ -186,7 +194,6 @@
     </div>
   </div>
 
-  <div class="or-divider" id="or-divider" style="display:none;">or</div>
   <a href="../app/" class="open-link" id="open-link" style="display:none;">Open in browser instead</a>
 
   <script>
