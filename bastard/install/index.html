@@ -157,14 +157,25 @@
   <h1>Ungrateful Bastard</h1>
   <p class="tagline">A gratitude journal with absolutely<br>no patience for your excuses.</p>
 
-  <!-- Android button -->
-  <a id="android-btn" class="btn btn-android" href="../app/" style="display:none;">
+  <!-- Android button.
+       href is set at runtime to either ../app/?install=1 (to trigger the
+       install dialog inside the app shell) or ../app/ when the PWA is
+       already installed on this device. -->
+  <a id="android-btn" class="btn btn-android" href="../app/?install=1" style="display:none;">
     <img src="SVG/Android bastard.svg" width="24" height="24" alt="Android">
     <span class="btn-label">
-      <span>Get the app</span>
-      <span>Install on Android</span>
+      <span id="android-btn-eyebrow">Get the app</span>
+      <span id="android-btn-label">Install on Android</span>
     </span>
   </a>
+
+  <!-- Fallback hint shown alongside the Android button. Chrome will only
+       surface the install dialog under specific conditions (not already
+       installed, not recently dismissed, engagement criteria met). If it
+       doesn't appear, this tells the user how to install manually. -->
+  <p id="android-hint" style="display:none;max-width:320px;width:100%;margin:-4px 0 14px;color:#777;font-size:12px;line-height:1.5;text-align:center;">
+    No dialog? Open the browser menu (⋮) and tap <strong style="color:#aaa;font-weight:600;">Install app</strong>.
+  </p>
 
   <div class="or-divider" id="or-divider" style="display:none;">or</div>
 
@@ -201,10 +212,37 @@
     const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
     const isAndroid = /Android/.test(ua);
 
+    // The app shell sets this flag in localStorage on `appinstalled` (and on
+    // accepted user choice). Both paths are same-origin, so we can read it
+    // here to swap the button copy to "Open app" once the PWA is installed.
+    function isInstalled() {
+      try { return localStorage.getItem('ub-pwa-installed') === '1'; }
+      catch (_) { return false; }
+    }
+
+    function paintAndroidInstalledState() {
+      const btn = document.getElementById('android-btn');
+      const eyebrow = document.getElementById('android-btn-eyebrow');
+      const label = document.getElementById('android-btn-label');
+      const hint = document.getElementById('android-hint');
+      if (isInstalled()) {
+        btn.href = '../app/';
+        eyebrow.textContent = 'Already installed';
+        label.textContent = 'Open app';
+        hint.style.display = 'none';
+      } else {
+        btn.href = '../app/?install=1';
+        eyebrow.textContent = 'Get the app';
+        label.textContent = 'Install on Android';
+        hint.style.display = (isAndroid || !isIOS) ? 'block' : 'none';
+      }
+    }
+
     if (isAndroid) {
       document.getElementById('android-btn').style.display = 'flex';
       document.getElementById('or-divider').style.display = 'flex';
       document.getElementById('open-link').style.display = 'inline';
+      paintAndroidInstalledState();
     } else if (isIOS) {
       document.getElementById('ios-btn').style.display = 'flex';
       // On iOS, link the button to the app for install
@@ -213,11 +251,23 @@
         window.location.href = '../app/';
       };
     } else {
-      // Desktop: show both
+      // Desktop: show both. Same install-handoff flow as Android.
       document.getElementById('android-btn').style.display = 'flex';
       document.getElementById('or-divider').style.display = 'flex';
       document.getElementById('ios-btn').style.display = 'flex';
+      paintAndroidInstalledState();
     }
+
+    // If the user returns to this page after installing (e.g. tab still
+    // open, or another tab fires the `storage` event), repaint the button.
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'ub-pwa-installed') paintAndroidInstalledState();
+    });
+    // Also repaint on visibilitychange in case the user installed in
+    // another tab/window and came back to this one.
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) paintAndroidInstalledState();
+    });
 
     function toggleIosSteps() {
       const steps = document.getElementById('ios-steps');
