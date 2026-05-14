@@ -122,11 +122,12 @@
     const ICON_APPLE = '<svg width="22" height="22" viewBox="0 0 24 24" fill="#00181E"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>';
     const ICON_ANDROID = '<svg width="22" height="22" viewBox="0 0 24 24" fill="#00181E"><path d="M17.523 15.341a1 1 0 1 1-1.001-1.732 1 1 0 0 1 1.001 1.732m-11.046 0a1 1 0 1 1-1.001-1.732 1 1 0 0 1 1.001 1.732m11.405-6.02 1.997-3.46a.416.416 0 0 0-.72-.416l-2.022 3.503A12.5 12.5 0 0 0 12 7.665c-1.84 0-3.585.41-5.137 1.142L4.84 5.305a.416.416 0 0 0-.72.416L6.117 9.18C2.68 11.05.314 14.554 0 18.667h24c-.313-4.113-2.68-7.616-6.118-9.486"/></svg>';
 
-    function isInstalled() {
-      if (isStandalone) return true;
-      try { return localStorage.getItem('ub-pwa-installed') === '1'; }
-      catch (_) { return false; }
-    }
+    // Cached install state. Painted optimistically from localStorage, then
+    // reconciled against navigator.getInstalledRelatedApps() — the only
+    // reliable signal because browsers don't fire any event on uninstall.
+    let installedState = false;
+    try { installedState = localStorage.getItem('ub-pwa-installed') === '1'; }
+    catch (_) {}
 
     function paint() {
       const btn = document.getElementById('install-btn');
@@ -136,7 +137,7 @@
 
       iconSlot.innerHTML = isIOS ? ICON_APPLE : ICON_ANDROID;
 
-      if (isInstalled()) {
+      if (installedState) {
         btn.href = '../app/';
         eyebrow.textContent = 'Already installed';
         label.textContent = 'Open app';
@@ -149,13 +150,45 @@
       }
     }
 
+    // Ask the browser whether the PWA is currently installed. Chrome on
+    // Android implements this; iOS Safari / Firefox don't (in which case
+    // we just trust localStorage and accept that uninstall can't be
+    // detected on those platforms).
+    async function reconcileInstalledState() {
+      if (isStandalone) {
+        installedState = true;
+        try { localStorage.setItem('ub-pwa-installed', '1'); } catch (_) {}
+        paint();
+        return;
+      }
+      if (typeof navigator.getInstalledRelatedApps !== 'function') {
+        paint();
+        return;
+      }
+      try {
+        const apps = await navigator.getInstalledRelatedApps();
+        const installed = apps.some(a => a.platform === 'webapp');
+        installedState = installed;
+        try {
+          if (installed) localStorage.setItem('ub-pwa-installed', '1');
+          else localStorage.removeItem('ub-pwa-installed');
+        } catch (_) {}
+      } catch (_) {
+        // API may reject for various reasons; leave optimistic state.
+      }
+      paint();
+    }
+
     paint();
+    reconcileInstalledState();
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'ub-pwa-installed') paint();
+      if (e.key !== 'ub-pwa-installed') return;
+      installedState = e.newValue === '1';
+      paint();
     });
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) paint();
+      if (!document.hidden) reconcileInstalledState();
     });
   </script>
 

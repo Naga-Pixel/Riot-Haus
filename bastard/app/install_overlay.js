@@ -23,19 +23,26 @@
   catch (_) { return; }
   if (params.get('install') !== '1') return;
 
-  // Suppress the overlay if the app is already running as an installed PWA,
-  // or if we previously recorded an install on this device. A user landing
-  // here with ?install=1 in that case is probably from a stale shared link
-  // and just wants the app.
+  // Suppress the overlay only when we're certain the app is already in use:
+  // running as an installed standalone PWA. We deliberately do NOT trust a
+  // cached "installed" flag here — browsers fire no event on uninstall, so
+  // that flag can be stale and would silently swallow a legitimate
+  // re-install click after the user removed the app.
   var isStandalone = (typeof window.matchMedia === 'function'
       && window.matchMedia('(display-mode: standalone)').matches)
     || window.navigator.standalone === true;
-  var installed = false;
-  try { installed = localStorage.getItem('ub-pwa-installed') === '1'; } catch (_) {}
-  if (isStandalone || installed) {
+  if (isStandalone) {
     stripInstallParam();
     return;
   }
+
+  // If we get an install-eligible event here, the app is definitely NOT
+  // currently installed — clear any stale flag so the landing page reflects
+  // reality on the next visit.
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    try { localStorage.removeItem('ub-pwa-installed'); } catch (_) {}
+  });
 
   // Flag <html> so the overlay CSS (in index.html) makes it visible as soon
   // as the markup is parsed. This avoids a flash where Flutter shows first

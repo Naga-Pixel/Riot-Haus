@@ -8,6 +8,13 @@
     "description": "A gratitude journal with absolutely no patience for your excuses.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "related_applications": [
+        {
+            "platform": "webapp",
+            "url": "https://riot.haus/bastard/app/manifest.json",
+            "id": "/bastard/app/"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
