@@ -73,9 +73,7 @@
       font-family: inherit;
     }
     .btn:active { opacity: 0.75; }
-
     .btn svg, .btn img { flex-shrink: 0; }
-
     .btn-label { display: flex; flex-direction: column; }
     .btn-label span:first-child { font-size: 11px; font-weight: 500; opacity: 0.6; }
     .btn-label span:last-child { font-size: 16px; font-weight: 800; }
@@ -88,121 +86,6 @@
       padding-bottom: 2px;
       margin-top: 8px;
     }
-
-    /* Instruction overlay — full-screen, unmissable. */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: #00181E;
-      z-index: 9999;
-      display: none;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
-      padding-top: calc(24px + env(safe-area-inset-top));
-      animation: fadeIn 0.2s ease-out;
-    }
-    .overlay.visible { display: flex; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .overlay-close {
-      align-self: flex-end;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #0d2b33;
-      border: none;
-      color: #fff;
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .overlay-close:active { opacity: 0.7; }
-
-    .overlay-inner {
-      max-width: 420px;
-      width: 100%;
-      margin: 8px auto 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .overlay h2 {
-      font-family: 'ZalandoSansExpanded', sans-serif;
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .overlay .sub {
-      font-size: 14px;
-      color: #aaa;
-      text-align: center;
-      margin-bottom: 32px;
-      line-height: 1.5;
-    }
-
-    .big-step {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      width: 100%;
-      background: #0d2b33;
-      border-radius: 18px;
-      padding: 18px 18px;
-      margin-bottom: 12px;
-    }
-
-    .big-step-num {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #fff;
-      color: #00181E;
-      font-size: 16px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .big-step-body {
-      flex: 1;
-      font-size: 15px;
-      line-height: 1.45;
-      color: #ddd;
-    }
-    .big-step-body strong { color: #fff; font-weight: 700; }
-
-    .big-step-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: #00181E;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .big-step-icon svg { display: block; }
-
-    .overlay-foot {
-      margin-top: 20px;
-      font-size: 13px;
-      color: #777;
-      text-align: center;
-      line-height: 1.5;
-    }
   </style>
 </head>
 <body>
@@ -211,33 +94,23 @@
   <h1>Ungrateful Bastard</h1>
   <p class="tagline">A gratitude journal with absolutely<br>no patience for your excuses.</p>
 
-  <!-- Primary install button. Click opens a fullscreen instruction overlay
-       with platform-specific steps. We do NOT call beforeinstallprompt here
-       because (a) it can't reliably fire on this page (it's outside the
-       PWA's service worker scope), and (b) showing both a browser dialog
-       AND the overlay would compete for attention. The overlay is the
-       single source of truth. -->
-  <button id="install-btn" class="btn" type="button">
+  <!-- Single install button. Click navigates to /bastard/app/?install=1
+       where the Flutter app shell renders a fullscreen instruction
+       overlay before Flutter loads.
+
+       The install MUST happen from /bastard/app/ — that's where the
+       manifest and service worker live. Installing from here would
+       only produce a webclip shortcut to this landing page, not the
+       PWA itself. -->
+  <a id="install-btn" class="btn" href="../app/?install=1">
     <span id="install-btn-icon" aria-hidden="true"></span>
     <span class="btn-label">
       <span id="install-btn-eyebrow">Get the app</span>
       <span id="install-btn-label">Install</span>
     </span>
-  </button>
+  </a>
 
-  <a href="../app/" class="open-link" id="open-link">Open in browser instead</a>
-
-  <!-- Fullscreen instruction overlay. Markup is shared; content is swapped
-       in JS based on platform. -->
-  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
-    <button class="overlay-close" id="overlay-close" aria-label="Close">&times;</button>
-    <div class="overlay-inner">
-      <h2 id="overlay-title">Install Ungrateful Bastard</h2>
-      <p class="sub" id="overlay-sub">Follow these 3 steps to add the app to your home screen.</p>
-      <div id="overlay-steps" style="width:100%;"></div>
-      <p class="overlay-foot" id="overlay-foot"></p>
-    </div>
-  </div>
+  <a href="../app/" class="open-link">Open in browser instead</a>
 
   <script>
     const ua = navigator.userAgent;
@@ -246,39 +119,8 @@
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || window.navigator.standalone === true;
 
-    // SVG icon definitions, kept inline so the overlay has zero extra
-    // network dependencies (it must render even on flaky connections).
-    const SVG = {
-      android: '<svg width="22" height="22" viewBox="0 0 24 24" fill="#00181E"><path d="M17.523 15.341a1 1 0 1 1-1.001-1.732 1 1 0 0 1 1.001 1.732m-11.046 0a1 1 0 1 1-1.001-1.732 1 1 0 0 1 1.001 1.732m11.405-6.02 1.997-3.46a.416.416 0 0 0-.72-.416l-2.022 3.503A12.5 12.5 0 0 0 12 7.665c-1.84 0-3.585.41-5.137 1.142L4.84 5.305a.416.416 0 0 0-.72.416L6.117 9.18C2.68 11.05.314 14.554 0 18.667h24c-.313-4.113-2.68-7.616-6.118-9.486"/></svg>',
-      apple: '<svg width="22" height="22" viewBox="0 0 24 24" fill="#00181E"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
-      // Three vertical dots (Chrome menu).
-      dots: '<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
-      // Phone with a + on it — represents "Install app".
-      install: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 10v6M9 13h6"/></svg>',
-      // Generic confirm tick — represents the final "Install" / "Add" tap.
-      check: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>',
-      // iOS Share glyph (square with arrow up).
-      share: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
-      // Plus square — represents "Add to Home Screen".
-      plus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>'
-    };
-
-    const STEPS_ANDROID = [
-      { icon: SVG.dots,    text: 'Tap the <strong>menu</strong> button (three dots) at the top right of Chrome.' },
-      { icon: SVG.install, text: 'Choose <strong>“Install app”</strong> or <strong>“Add to Home screen”</strong>.' },
-      { icon: SVG.check,   text: 'Tap <strong>Install</strong>. The app will appear on your home screen.' }
-    ];
-
-    const STEPS_IOS = [
-      { icon: SVG.share, text: 'Tap the <strong>Share</strong> button at the bottom of Safari (a box with an up arrow).' },
-      { icon: SVG.plus,  text: 'Scroll down and tap <strong>“Add to Home Screen”</strong>.' },
-      { icon: SVG.check, text: 'Tap <strong>Add</strong> in the top right. The app will appear on your home screen.' }
-    ];
-
-    function setBtnIcon(platform) {
-      const slot = document.getElementById('install-btn-icon');
-      slot.innerHTML = platform === 'ios' ? SVG.apple : SVG.android;
-    }
+    const ICON_APPLE = '<svg width="22" height="22" viewBox="0 0 24 24" fill="#00181E"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>';
+    const ICON_ANDROID = '<svg width="22" height="22" viewBox="0 0 24 24" fill="#00181E"><path d="M17.523 15.341a1 1 0 1 1-1.001-1.732 1 1 0 0 1 1.001 1.732m-11.046 0a1 1 0 1 1-1.001-1.732 1 1 0 0 1 1.001 1.732m11.405-6.02 1.997-3.46a.416.416 0 0 0-.72-.416l-2.022 3.503A12.5 12.5 0 0 0 12 7.665c-1.84 0-3.585.41-5.137 1.142L4.84 5.305a.416.416 0 0 0-.72.416L6.117 9.18C2.68 11.05.314 14.554 0 18.667h24c-.313-4.113-2.68-7.616-6.118-9.486"/></svg>';
 
     function isInstalled() {
       if (isStandalone) return true;
@@ -286,73 +128,34 @@
       catch (_) { return false; }
     }
 
-    function paintButton() {
+    function paint() {
+      const btn = document.getElementById('install-btn');
+      const iconSlot = document.getElementById('install-btn-icon');
       const eyebrow = document.getElementById('install-btn-eyebrow');
       const label = document.getElementById('install-btn-label');
+
+      iconSlot.innerHTML = isIOS ? ICON_APPLE : ICON_ANDROID;
+
       if (isInstalled()) {
+        btn.href = '../app/';
         eyebrow.textContent = 'Already installed';
         label.textContent = 'Open app';
-      } else if (isIOS) {
-        eyebrow.textContent = 'Get the app';
-        label.textContent = 'Add to iPhone';
-      } else if (isAndroid) {
-        eyebrow.textContent = 'Get the app';
-        label.textContent = 'Install on Android';
       } else {
+        btn.href = '../app/?install=1';
         eyebrow.textContent = 'Get the app';
-        label.textContent = 'Install app';
+        label.textContent = isIOS ? 'Add to iPhone'
+                           : isAndroid ? 'Install on Android'
+                           : 'Install app';
       }
     }
 
-    function openOverlay(platform) {
-      const stepsBox = document.getElementById('overlay-steps');
-      const foot = document.getElementById('overlay-foot');
-      const steps = platform === 'ios' ? STEPS_IOS : STEPS_ANDROID;
+    paint();
 
-      stepsBox.innerHTML = steps.map((s, i) => `
-        <div class="big-step">
-          <div class="big-step-num">${i + 1}</div>
-          <div class="big-step-body">${s.text}</div>
-          <div class="big-step-icon">${s.icon}</div>
-        </div>
-      `).join('');
-
-      foot.innerHTML = platform === 'ios'
-        ? 'Make sure you’re using <strong style="color:#aaa">Safari</strong>. The “Add to Home Screen” option isn’t available in Chrome or Firefox on iPhone.'
-        : 'If your browser shows an automatic install banner, you can tap that instead.';
-
-      document.getElementById('overlay').classList.add('visible');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeOverlay() {
-      document.getElementById('overlay').classList.remove('visible');
-      document.body.style.overflow = '';
-    }
-
-    // Wire everything up.
-    setBtnIcon(isIOS ? 'ios' : 'android');
-    paintButton();
-
-    document.getElementById('install-btn').addEventListener('click', () => {
-      if (isInstalled()) {
-        window.location.href = '../app/';
-        return;
-      }
-      openOverlay(isIOS ? 'ios' : 'android');
-    });
-
-    document.getElementById('overlay-close').addEventListener('click', closeOverlay);
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeOverlay();
-    });
-
-    // Repaint button if the install state changes in another tab.
     window.addEventListener('storage', (e) => {
-      if (e.key === 'ub-pwa-installed') paintButton();
+      if (e.key === 'ub-pwa-installed') paint();
     });
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) paintButton();
+      if (!document.hidden) paint();
     });
   </script>
 

@@ -34,6 +34,113 @@
       background-color: #00181E;
       overflow: hidden;
     }
+
+    /* Install instructions overlay.
+       Hidden by default; install_overlay.js adds .ub-show-install-overlay
+       to <html> when ?install=1 is present, which reveals it. The overlay
+       sits on top of Flutter (which loads in the background) so the user
+       reads the steps while on the actual PWA URL — making Chrome's
+       "Install app" install the correct PWA, not a screenshot shortcut. */
+    .ub-install-overlay { display: none; }
+    .ub-show-install-overlay .ub-install-overlay {
+      display: flex;
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      background: #00181E;
+      color: #fff;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: calc(24px + env(safe-area-inset-top)) 24px
+               calc(24px + env(safe-area-inset-bottom));
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .ub-install-close {
+      align-self: flex-end;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #0d2b33;
+      border: none;
+      color: #fff;
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .ub-install-inner {
+      max-width: 420px;
+      width: 100%;
+      margin: 8px auto 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ub-install-logo {
+      width: 72px; height: 72px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+    }
+    .ub-install-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .ub-install-sub {
+      font-size: 14px;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .ub-install-steps { width: 100%; }
+    .ub-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      background: #0d2b33;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .ub-step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      color: #00181E;
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ub-step-body {
+      flex: 1;
+      font-size: 14.5px;
+      line-height: 1.45;
+      color: #ddd;
+    }
+    .ub-step-body strong { color: #fff; font-weight: 700; }
+    .ub-step-icon {
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      background: #00181E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ub-install-foot {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #777;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .ub-install-foot strong { color: #aaa; font-weight: 600; }
   </style>
 
   <!-- iOS meta tags & icons -->
@@ -49,86 +156,27 @@
   <title>Ungrateful Bastard</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- PWA install handler.
-       Captures Chrome's `beforeinstallprompt` as soon as it fires (the event
-       only fires once per page load and is the only way to programmatically
-       open the install dialog).
-
-       When this page is loaded with ?install=1 (handoff from the install
-       landing page at /bastard/install/), we trigger the dialog as soon as
-       the captured event is available. If the browser has suppressed it
-       (already installed, recently dismissed, engagement heuristics not met,
-       iOS, etc.) we show a small fallback toast pointing the user at the
-       browser's manual "Install app" menu, rather than leaving them staring
-       at the splash wondering what happened. -->
-  <script>
-    (function () {
-      var deferred = null;
-      window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        deferred = e;
-        window.dispatchEvent(new Event('pwa-install-ready'));
-      });
-      window.addEventListener('appinstalled', function () {
-        deferred = null;
-        try { localStorage.setItem('ub-pwa-installed', '1'); } catch (_) {}
-      });
-
-      var params = new URLSearchParams(window.location.search);
-      if (params.get('install') !== '1') return;
-
-      // Strip the param so refreshes / shares / back-navigations don't
-      // re-trigger the dialog.
-      var clean = new URL(window.location.href);
-      clean.searchParams.delete('install');
-      history.replaceState({}, '', clean.toString());
-
-      var resolved = false;
-      function fire() {
-        if (resolved || !deferred) return;
-        resolved = true;
-        var ev = deferred; deferred = null;
-        ev.prompt();
-        ev.userChoice.then(function (choice) {
-          if (choice && choice.outcome === 'accepted') {
-            try { localStorage.setItem('ub-pwa-installed', '1'); } catch (_) {}
-          }
-        }).catch(function () {});
-      }
-      window.addEventListener('pwa-install-ready', fire);
-      // If the event already fired before this listener attached, catch it.
-      setTimeout(fire, 0);
-
-      // No event within 4s -> Chrome has suppressed the prompt. Surface a
-      // hint instead of silently swallowing the click.
-      setTimeout(function () {
-        if (resolved) return;
-        if (deferred) { fire(); return; }
-        var n = document.createElement('div');
-        n.textContent =
-          "Install dialog unavailable. Open the browser menu and choose " +
-          "'Install app' or 'Add to Home screen'.";
-        n.setAttribute('style',
-          'position:fixed;left:16px;right:16px;bottom:24px;z-index:2147483647;' +
-          'background:#0d2b33;color:#fff;padding:14px 16px;border-radius:12px;' +
-          'font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;' +
-          'box-shadow:0 8px 24px rgba(0,0,0,.4);line-height:1.4;' +
-          'opacity:0;transition:opacity .2s;');
-        var attach = function () {
-          if (!document.body) { setTimeout(attach, 50); return; }
-          document.body.appendChild(n);
-          requestAnimationFrame(function () { n.style.opacity = '1'; });
-          setTimeout(function () {
-            n.style.opacity = '0';
-            setTimeout(function () { n.remove(); }, 250);
-          }, 7000);
-        };
-        attach();
-      }, 4000);
-    })();
-  </script>
+  <!-- Install instructions overlay handler. External file because the CSP
+       above forbids inline scripts (script-src 'self' without 'unsafe-inline').
+       Loaded blocking (no async/defer) so the .ub-show-install-overlay class
+       is set on <html> before <body> is painted — no flash of Flutter
+       behind the overlay when ?install=1 is present. -->
+  <script src="install_overlay.js"></script>
 </head>
 <body>
+  <!-- Install instructions overlay. Hidden by default via CSS; revealed
+       when install_overlay.js sets .ub-show-install-overlay on <html>. -->
+  <div class="ub-install-overlay" id="ub-install-overlay" role="dialog" aria-modal="true" aria-labelledby="ub-install-title">
+    <button class="ub-install-close" id="ub-install-close" type="button" aria-label="Close">&times;</button>
+    <div class="ub-install-inner">
+      <img class="ub-install-logo" src="icons/Icon-192.png" alt="">
+      <div class="ub-install-title" id="ub-install-title">Install Ungrateful Bastard</div>
+      <div class="ub-install-sub">Follow these 3 steps to add the app to your home screen.</div>
+      <div class="ub-install-steps" id="ub-install-steps"></div>
+      <div class="ub-install-foot" id="ub-install-foot"></div>
+    </div>
+  </div>
+
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader
