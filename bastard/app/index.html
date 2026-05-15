@@ -33,6 +33,11 @@
       padding: 0;
       background-color: #00181E;
       overflow: hidden;
+      /* Skip iOS Safari's 300ms double-tap-zoom delay AND its synthetic
+         "first tap is a hover" emulation on PWA standalone, both of which
+         caused buttons to require two taps on iOS. */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Install instructions overlay.
