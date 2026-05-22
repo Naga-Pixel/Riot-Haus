@@ -26,7 +26,7 @@
 'use strict';
 
 const CACHE_PREFIX = 'ub-cache-';
-const CACHE_VERSION = '2626209d09be';
+const CACHE_VERSION = '8b0646b272b7';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 // Replaced post-build with a JSON array of relative paths. The string
 // quotes around the placeholder keep this file as valid JS when the
