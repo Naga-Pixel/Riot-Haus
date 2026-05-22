@@ -17,7 +17,7 @@
   <base href="/bastard/app/">
 
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.gstatic.com; worker-src 'self' blob:; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.gstatic.com https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; base-uri 'self'; form-action 'none'; object-src 'none'">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="A gratitude journal with absolutely no patience for your excuses.">
@@ -194,7 +194,12 @@
        above forbids inline scripts (script-src 'self' without 'unsafe-inline').
        Loaded blocking (no async/defer) so the .ub-show-install-overlay class
        is set on <html> before <body> is painted — no flash of Flutter
-       behind the overlay when ?install=1 is present. -->
+       behind the overlay in browser mode.
+
+       This script is now responsible for loading flutter_bootstrap.js as
+       well: it only injects it when running as an installed PWA (display
+       mode = standalone). In a regular browser tab Flutter never loads —
+       the install overlay is all the user sees. -->
   <script src="install_overlay.js"></script>
 </head>
 <body>
@@ -212,13 +217,11 @@
   </div>
 
   <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
+    Flutter is loaded dynamically by install_overlay.js, and only when
+    the page is running in PWA standalone mode (i.e. launched from the
+    home screen). In a regular browser tab the install overlay shows
+    instead and Flutter never boots — we don't want users seeing the
+    half-rendered app in a tab.
   -->
-  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
