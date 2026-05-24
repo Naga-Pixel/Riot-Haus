@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Bastard Submissions — Admin</title>
+  <style>
+    :root {
+      --dark: #00181e;
+      --pink: #eb7783;
+      --mint: #7de4c4;
+      --white: #ffffff;
+      --muted: rgba(255, 255, 255, 0.6);
+      --border: rgba(255, 255, 255, 0.12);
+      --row: rgba(255, 255, 255, 0.04);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      background: var(--dark);
+      color: var(--white);
+      font-family: 'NotoSansMono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--pink);
+    }
+
+    .who { font-size: 12px; color: var(--muted); }
+
+    button, .btn {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--white);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 120ms, border-color 120ms;
+    }
+    button:hover { background: rgba(255,255,255,0.06); }
+    button.primary {
+      background: var(--pink);
+      color: var(--dark);
+      border-color: var(--pink);
+      font-weight: 700;
+    }
+    button.primary:hover { background: #f08e98; }
+    button.danger { color: #ff8a8a; border-color: rgba(255,138,138,0.4); }
+    button.danger:hover { background: rgba(255,138,138,0.08); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .signin {
+      max-width: 380px;
+      margin: 80px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .signin label { font-size: 12px; color: var(--muted); }
+    .signin input {
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--white);
+      border-radius: 4px;
+    }
+    .signin input:focus { outline: none; border-color: var(--pink); }
+    .signin .status { font-size: 12px; color: var(--mint); min-height: 18px; }
+    .signin .error  { color: #ff8a8a; }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .filters button.active {
+      background: var(--pink);
+      color: var(--dark);
+      border-color: var(--pink);
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: var(--row); }
+    .col-date { white-space: nowrap; color: var(--muted); font-size: 12px; width: 130px; }
+    .col-name { white-space: nowrap; width: 140px; }
+    .col-prompt { color: var(--mint); font-size: 12px; width: 180px; }
+    .col-text { white-space: pre-wrap; word-break: break-word; }
+    .col-actions { white-space: nowrap; width: 200px; text-align: right; }
+    .col-actions button { margin-left: 6px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 999px;
+      background: rgba(125,228,196,0.15);
+      color: var(--mint);
+      margin-left: 6px;
+    }
+
+    .empty {
+      padding: 60px 0;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .loading { padding: 40px 0; text-align: center; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Bastard Submissions — Admin</h1>
+      <div id="header-right"></div>
+    </header>
+    <section id="view"></section>
+  </main>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
+
+    const SUPABASE_URL  = 'https://eqavyxuhkdvhnpfytowj.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_D_kB-YFd79qvUL6mhdODuQ_KWMuZwS2';
+    const ADMIN_EMAIL   = 'info@riot.haus';
+    const TABLE         = 'Bastard Submissions';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' }
+    });
+
+    const view = document.getElementById('view');
+    const headerRight = document.getElementById('header-right');
+
+    let currentFilter = 'pending'; // 'pending' | 'approved' | 'all'
+    let currentSession = null;
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleString(undefined, {
+        year: '2-digit', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    // ----- State machine -----
+    async function render() {
+      const { data: { session } } = await supabase.auth.getSession();
+      currentSession = session;
+
+      headerRight.innerHTML = '';
+
+      if (!session) {
+        renderSignIn();
+        return;
+      }
+      const email = session.user?.email ?? '';
+      const whoEl = document.createElement('span');
+      whoEl.className = 'who';
+      whoEl.textContent = email;
+      const signOutBtn = document.createElement('button');
+      signOutBtn.textContent = 'Sign out';
+      signOutBtn.onclick = async () => {
+        await supabase.auth.signOut();
+        render();
+      };
+      headerRight.appendChild(whoEl);
+      headerRight.appendChild(signOutBtn);
+
+      if (email !== ADMIN_EMAIL) {
+        renderNotAuthorised();
+        return;
+      }
+      renderAdmin();
+    }
+
+    // ----- Signed-out view -----
+    function renderSignIn() {
+      view.innerHTML = `
+        <form class="signin" id="signin-form" autocomplete="off">
+          <label for="email">Admin email</label>
+          <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email">
+          <button type="submit" class="primary">Send magic link</button>
+          <div class="status" id="signin-status"></div>
+        </form>
+      `;
+      const form = document.getElementById('signin-form');
+      const status = document.getElementById('signin-status');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        if (!email) return;
+        status.classList.remove('error');
+        status.textContent = 'Sending…';
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: location.href }
+        });
+        if (error) {
+          status.classList.add('error');
+          status.textContent = error.message;
+        } else {
+          status.textContent = 'Check your inbox for the magic link.';
+        }
+      });
+    }
+
+    // ----- Wrong account view -----
+    function renderNotAuthorised() {
+      view.innerHTML = `
+        <div class="empty">
+          <p style="color:#ff8a8a;font-size:14px;margin-bottom:8px;">Not authorised.</p>
+          <p>This account doesn't have moderation access.</p>
+        </div>
+      `;
+    }
+
+    // ----- Admin view -----
+    async function renderAdmin() {
+      view.innerHTML = `
+        <div class="filters">
+          <button data-filter="pending">Pending</button>
+          <button data-filter="approved">Approved</button>
+          <button data-filter="all">All</button>
+        </div>
+        <div id="list"><div class="loading">Loading…</div></div>
+      `;
+      const filterBtns = view.querySelectorAll('.filters button');
+      filterBtns.forEach(btn => {
+        if (btn.dataset.filter === currentFilter) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          currentFilter = btn.dataset.filter;
+          filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === currentFilter));
+          loadRows();
+        });
+      });
+      loadRows();
+    }
+
+    async function loadRows() {
+      const list = document.getElementById('list');
+      if (!list) return;
+      list.innerHTML = '<div class="loading">Loading…</div>';
+
+      let q = supabase.from(TABLE)
+        .select('id, created_at, name, prompt, text, approved')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
+      if (currentFilter === 'pending')  q = q.eq('approved', false);
+      if (currentFilter === 'approved') q = q.eq('approved', true);
+
+      const { data, error } = await q;
+      if (error) {
+        list.innerHTML = `<div class="empty"><p style="color:#ff8a8a;">${escapeHtml(error.message)}</p></div>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        const msg = currentFilter === 'pending'
+          ? 'Nothing pending. Inbox zero.'
+          : currentFilter === 'approved'
+            ? 'No approved submissions yet.'
+            : 'No submissions at all.';
+        list.innerHTML = `<div class="empty"><p>${msg}</p></div>`;
+        return;
+      }
+
+      const rows = data.map(r => `
+        <tr data-id="${escapeHtml(r.id)}">
+          <td class="col-date">${escapeHtml(fmtDate(r.created_at))}</td>
+          <td class="col-name">${escapeHtml(r.name || '—')}</td>
+          <td class="col-prompt">${escapeHtml(r.prompt || '')}</td>
+          <td class="col-text">${escapeHtml(r.text || '')}${r.approved ? '<span class="badge">approved</span>' : ''}</td>
+          <td class="col-actions">
+            ${r.approved ? '' : '<button class="primary" data-action="approve">Approve</button>'}
+            <button class="danger" data-action="delete">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+
+      list.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Name</th>
+              <th>Prompt</th>
+              <th>Response</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      list.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => handleAction(btn));
+      });
+    }
+
+    async function handleAction(btn) {
+      const tr = btn.closest('tr');
+      const id = tr?.dataset.id;
+      const action = btn.dataset.action;
+      if (!id) return;
+
+      // Disable all row buttons during the request.
+      tr.querySelectorAll('button').forEach(b => b.disabled = true);
+
+      if (action === 'approve') {
+        const { error } = await supabase.from(TABLE).update({ approved: true }).eq('id', id);
+        if (error) { alert('Approve failed: ' + error.message); tr.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+      } else if (action === 'delete') {
+        if (!confirm('Permanently delete this submission? This cannot be undone.')) {
+          tr.querySelectorAll('button').forEach(b => b.disabled = false);
+          return;
+        }
+        const { error } = await supabase.from(TABLE).delete().eq('id', id);
+        if (error) { alert('Delete failed: ' + error.message); tr.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+      }
+      loadRows();
+    }
+
+    // Re-render on any auth state transition (magic-link callback, sign-out, refresh).
+    supabase.auth.onAuthStateChange((_event, session) => {
+      // Only re-render if the session identity actually changed, to avoid
+      // wiping the table view on silent token refreshes.
+      const prevId = currentSession?.user?.id ?? null;
+      const nextId = session?.user?.id ?? null;
+      if (prevId !== nextId) render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
