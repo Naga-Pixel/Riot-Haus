@@ -49,6 +49,8 @@
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
         /* Top bar */
@@ -150,6 +152,7 @@
         .mock-input::placeholder { color: #aaa; }
         .button-row {
             display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             align-items: center;
             width: 100%;
@@ -315,15 +318,31 @@
         @media (max-width: 768px) {
             .topbar { padding: 16px 20px; }
             .topbar .logo { width: 40px; height: 40px; }
-            .stage { padding: 16px 20px 32px; }
+            .stage { padding: 16px 20px calc(32px + env(safe-area-inset-bottom)); }
             #stage-intro h1 { font-size: 40px; }
             #prompt-heading { font-size: 24px; }
             .review-title { font-size: 24px; }
             #stage-done h2 { font-size: 56px; }
-            .pill { padding: 12px 20px; font-size: 14px; }
+            /* iOS won't auto-zoom when font-size >= 16px */
+            .mock-input { font-size: 16px; height: 140px; }
+            .review-item textarea { font-size: 16px; }
+            .pill { padding: 12px 18px; font-size: 14px; }
             .pill-back img { height: 24px; }
             .pill img { height: 16px; }
             .pill-next img { height: 20px; }
+            /* Push "Basta" onto its own full-width row so the three
+               action pills (back / skip / next) get real estate. */
+            .pill-fine {
+                flex: 1 1 100%;
+                margin-left: 0;
+                order: 5;
+            }
+        }
+
+        /* Narrowest phones — drop intro h1 further so it doesn't wrap awkwardly */
+        @media (max-width: 380px) {
+            #stage-intro h1 { font-size: 34px; }
+            #stage-done h2 { font-size: 44px; }
         }
     </style>
 </head>
