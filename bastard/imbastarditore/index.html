@@ -170,25 +170,18 @@
         }
         .pill:active { opacity: 0.7; }
         .pill-back {
-            background: var(--dark);
-            color: var(--white);
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid var(--dark);
             flex: 100 1 0;
         }
         .pill-back img {
-            filter: brightness(0) invert(1);
             height: 32px;
         }
         .pill-skip {
-            background: transparent;
-            color: var(--pink);
-            border: 2px solid var(--pink);
+            background: var(--pink);
+            color: var(--white);
             flex: 120 1 0;
-        }
-        .pill-skip img {
-            /* Tint dark-fill x.svg toward var(--pink). Filter approximated
-               with the standard black→color recipe; visually close to #eb7783. */
-            filter: brightness(0) saturate(100%) invert(64%) sepia(34%)
-                    saturate(2400%) hue-rotate(311deg) brightness(95%) contrast(91%);
         }
         .pill-next {
             background: var(--mint);
