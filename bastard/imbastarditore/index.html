@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Inbastarditore — Bastardo Ingrato</title>
+    <meta name="description" content="Aiutaci a inbastardire le frasi melense delle app di gratitudine.">
+    <style>
+        @font-face {
+            font-family: 'ZalandoSansExpanded';
+            src: url('../assets/fonts/ZalandoSansExpanded-ExtraBold.ttf') format('truetype');
+            font-weight: 800;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'NotoSansMono';
+            src: url('../assets/fonts/NotoSansMono-Variable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --dark: #00181e;
+            --pink: #eb7783;
+            --mint: #7de4c4;
+            --font-headline: 'ZalandoSansExpanded', 'Arial Black', sans-serif;
+            --font-body: 'NotoSansMono', 'Courier New', monospace;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--white);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top bar */
+        .topbar {
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .topbar a {
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 13px;
+            opacity: 0.6;
+        }
+        .topbar a:hover { opacity: 1; }
+        .topbar .logo {
+            width: 48px;
+            height: 48px;
+        }
+
+        /* Stage container */
+        .stage {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 24px 32px 48px;
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .stage.active { display: flex; }
+
+        /* INTRO stage */
+        #stage-intro {
+            justify-content: center;
+            text-align: center;
+            gap: 24px;
+        }
+        #stage-intro h1 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 56px;
+            line-height: 0.95;
+            color: var(--dark);
+        }
+        #stage-intro p {
+            font-size: 16px;
+            line-height: 1.7;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .start-btn {
+            display: inline-block;
+            background: var(--mint);
+            color: var(--dark);
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 18px;
+            padding: 18px 36px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .start-btn:active { opacity: 0.7; }
+
+        /* COMPOSE stage */
+        #stage-compose { gap: 16px; }
+        .progress {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        #prompt-heading {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 32px;
+            line-height: 1.15;
+            color: var(--dark);
+            min-height: 1.15em;
+        }
+        .mock-input {
+            background: #ebebeb;
+            border-radius: 16px;
+            height: 180px;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 20px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--dark);
+        }
+        .mock-input::placeholder { color: #aaa; }
+        .button-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+        }
+        .pill {
+            border-radius: 50px;
+            padding: 14px 28px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.1s ease;
+        }
+        .pill:active { opacity: 0.7; }
+        .pill-fine, .pill-back {
+            background: var(--dark);
+            color: var(--white);
+            flex: 100 1 0;
+        }
+        .pill-back img {
+            filter: brightness(0) invert(1);
+            height: 32px;
+        }
+        .pill-skip {
+            background: var(--pink);
+            color: var(--white);
+            flex: 120 1 0;
+        }
+        .pill-next {
+            background: var(--mint);
+            color: var(--dark);
+            flex: 120 1 0;
+        }
+        .pill img {
+            height: 20px;
+            width: auto;
+            display: block;
+        }
+        .pill-next img { height: 24px; }
+        .pill:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* REVIEW stage */
+        #stage-review { gap: 24px; }
+        .review-title {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 32px;
+            line-height: 1.1;
+            color: var(--dark);
+        }
+        .review-sub {
+            font-size: 14px;
+            color: #666;
+            margin-top: -16px;
+        }
+        .name-input {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid var(--dark);
+            padding: 12px 0;
+            font-family: var(--font-body);
+            font-size: 16px;
+            color: var(--dark);
+            background: transparent;
+            outline: none;
+        }
+        .name-input::placeholder { color: #aaa; }
+        .review-list { display: flex; flex-direction: column; gap: 28px; }
+        .review-item label {
+            display: block;
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .review-item textarea {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            padding: 8px 0;
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--dark);
+            background: transparent;
+            resize: none;
+            outline: none;
+            overflow: hidden;
+        }
+        .submit-all {
+            width: 100%;
+            background: var(--dark);
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 700;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .submit-all:active { opacity: 0.7; }
+        .submit-all:disabled { opacity: 0.5; cursor: not-allowed; }
+        .submit-err {
+            font-size: 13px;
+            color: #c0392b;
+            min-height: 18px;
+        }
+
+        /* DONE stage */
+        #stage-done {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+        }
+        #stage-done h2 {
+            font-family: var(--font-headline);
+            font-weight: 800;
+            font-size: 72px;
+            color: var(--dark);
+        }
+
+        /* ── Mobile ──────────────────────────────── */
+        @media (max-width: 768px) {
+            .topbar { padding: 16px 20px; }
+            .topbar .logo { width: 40px; height: 40px; }
+            .stage { padding: 16px 20px 32px; }
+            #stage-intro h1 { font-size: 40px; }
+            #prompt-heading { font-size: 24px; }
+            .review-title { font-size: 24px; }
+            #stage-done h2 { font-size: 56px; }
+            .pill { padding: 12px 20px; font-size: 14px; }
+            .pill-back img { height: 24px; }
+            .pill img { height: 16px; }
+            .pill-next img { height: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="../">← indietro</a>
+        <img src="../assets/Ungrateful monkey@3x.png" alt="Bastardo Ingrato" class="logo">
+        <span style="width:48px"></span>
+    </div>
+
+    <!-- INTRO -->
+    <section id="stage-intro" class="stage active">
+        <h1>L'Inbastarditore</h1>
+        <p>Aiutaci a inbastardire le frasi melense delle app di gratitudine. Riscrivile a modo tuo, salta quelle che non ti ispirano, alla fine ce le mandi. Cinque minuti, niente di che.</p>
+        <button class="start-btn" id="btn-start">Inizia →</button>
+    </section>
+
+    <!-- COMPOSE -->
+    <section id="stage-compose" class="stage">
+        <div class="progress" id="progress">prompt 1</div>
+        <h2 id="prompt-heading"></h2>
+        <textarea class="mock-input" id="composer" placeholder="Scrivi qui la tua versione bastarda del prompt o push notification"></textarea>
+        <div class="button-row">
+            <button class="pill pill-back" id="btn-back" title="Indietro"><img src="../assets/back.svg" alt="Indietro"></button>
+            <button class="pill pill-fine" id="btn-fine">Fine</button>
+            <button class="pill pill-skip" id="btn-skip" title="Salta"><img src="../assets/x.svg" alt="Salta"></button>
+            <button class="pill pill-next" id="btn-next" title="Invia"><img src="../assets/arrow.svg" alt="Invia"></button>
+        </div>
+    </section>
+
+    <!-- REVIEW -->
+    <section id="stage-review" class="stage">
+        <h2 class="review-title">Ecco quello che hai inbastardito.</h2>
+        <p class="review-sub">Aggiusta se vuoi, firma se ti va, poi spara.</p>
+        <input type="text" id="user-name" class="name-input" placeholder="Firma se ti va (opzionale)" autocomplete="name">
+        <div class="review-list" id="review-body"></div>
+        <div class="submit-err" id="submit-err"></div>
+        <button id="btn-submit-all" class="submit-all">Spara</button>
+    </section>
+
+    <!-- DONE -->
+    <section id="stage-done" class="stage">
+        <h2>Grazie!</h2>
+    </section>
+
+    <script>
+        const SUPABASE_URL = 'https://eqavyxuhkdvhnpfytowj.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_D_kB-YFd79qvUL6mhdODuQ_KWMuZwS2';
+        const sessionId = crypto.randomUUID();
+
+        const prompts = [
+            'Cosa ti ha fatto sorridere oggi?',
+            'Di cosa sei più orgoglioso nella tua vita in questo momento?',
+            'Qual è un tuo talento o una tua abilità per cui sei grato?',
+            'Qual è la lezione più importante che hai imparato quest\'anno?',
+            'Cosa rende la tua casa un posto speciale?',
+            'Qual è la parte della tua giornata che preferisci?',
+            'Cosa ti dà speranza per il futuro?',
+            'Qual è un traguardo che hai raggiunto, anche se piccolo?',
+            'Di cosa sei grato riguardo alla tua salute oggi?',
+            'Qual è la cosa migliore che ti è successa questa settimana?',
+            'Chi è la persona che ti ispira di più?',
+            'Quale atto di gentilezza hai ricevuto di recente?',
+            'Descrivi un amico che c\'è sempre stato per te.',
+            'Cosa apprezzi di più dei tuoi genitori?',
+            'Scrivi di qualcuno che ti ha fatto ridere oggi.',
+            'Quale conversazione ti ha lasciato una bella sensazione?',
+            'Chi è un collega che ti rende il lavoro più facile?',
+            'Pensa a un insegnante che ha cambiato la tua prospettiva.',
+            'Qual è una qualità che ammiri negli altri e che possiedi anche tu?',
+            'Di cosa sei grato nella tua relazione attuale o passata?',
+            'Qual è un suono che trovi rilassante?',
+            'Descrivi un pasto delizioso che hai mangiato di recente.',
+            'Qual è il tuo posto preferito nella natura?',
+            'Di cosa sei grato nel clima di oggi?',
+            'Quale profumo ti evoca un bel ricordo?',
+            'Qual è il libro o il film che ti ha cambiato la vita?',
+            'Cosa apprezzi della città o del quartiere in cui vivi?',
+            'Qual è un oggetto materiale che possiedi e che ti semplifica la vita?',
+            'Di cosa sei grato quando guardi fuori dalla finestra?',
+            'Qual è la tua canzone preferita del momento e perché ti rende felice?',
+            'Quale errore hai fatto che però ti ha insegnato qualcosa di utile?',
+            'Come sei cambiato in meglio negli ultimi cinque anni?',
+            'Qual è una sfida che hai superato e che ti ha reso più forte?',
+            'Cosa ti piace del tuo lavoro o della tua carriera?',
+            'Qual è un vizio o una cattiva abitudine che sei riuscito a cambiare?',
+            'Di cosa sei grato nel tuo percorso di crescita personale?',
+            'Quale paura sei riuscito ad affrontare recentemente?',
+            'Cosa ti rende unico rispetto a chiunque altro?',
+            'Qual è una risorsa o uno strumento che ti aiuta a gestire lo stress?',
+            'Di quale decisione presa nel passato sei ancora grato oggi?',
+            'Cosa hai apprezzato della tua tazza di caffè o tè stamattina?',
+            'Di quale comfort moderno non potresti fare a meno?',
+            'Qual è stata la cosa più bella che hai visto mentre andavi al lavoro?',
+            'Cosa ti rende grato di avere un corpo che funziona?',
+            'Qual è un piccolo piacere quotidiano che dai per scontato?',
+            'Descrivi un momento di pace che hai vissuto oggi.',
+            'Quale capo d\'abbigliamento ti fa sentire bene quando lo indossi?',
+            'Di cosa sei grato riguardo al tuo letto o al tuo riposo?',
+            'Qual è un hobby che ti permette di staccare la spina?',
+            'Cosa ti fa sentire fortunato di essere vivo proprio in questo momento storico?'
+        ];
+
+        // Shuffle prompts
+        for (let i = prompts.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [prompts[i], prompts[j]] = [prompts[j], prompts[i]];
+        }
+
+        const stages = {
+            intro:   document.getElementById('stage-intro'),
+            compose: document.getElementById('stage-compose'),
+            review:  document.getElementById('stage-review'),
+            done:    document.getElementById('stage-done'),
+        };
+        function setStage(name) {
+            Object.entries(stages).forEach(([k, el]) => el.classList.toggle('active', k === name));
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        const heading   = document.getElementById('prompt-heading');
+        const composer  = document.getElementById('composer');
+        const progress  = document.getElementById('progress');
+        const btnStart  = document.getElementById('btn-start');
+        const btnNext   = document.getElementById('btn-next');
+        const btnSkip   = document.getElementById('btn-skip');
+        const btnBack   = document.getElementById('btn-back');
+        const btnFine   = document.getElementById('btn-fine');
+        const submitErr = document.getElementById('submit-err');
+        const submitBtn = document.getElementById('btn-submit-all');
+
+        let promptIndex = 0;
+        let typing = false;
+        const submittedTexts = new Map();
+
+        function typewriter(text, speed = 18) {
+            if (typing) {
+                heading.textContent = text;
+                return;
+            }
+            typing = true;
+            heading.textContent = '';
+            let i = 0;
+            const interval = setInterval(() => {
+                heading.textContent += text[i++];
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    typing = false;
+                }
+            }, speed);
+        }
+
+        function refreshProgress() {
+            progress.textContent = `prompt ${promptIndex + 1} / ${prompts.length}`;
+            btnBack.disabled = promptIndex === 0;
+        }
+
+        function showPrompt() {
+            composer.value = submittedTexts.get(promptIndex) || '';
+            typewriter(prompts[promptIndex]);
+            refreshProgress();
+        }
+
+        function advancePrompt() {
+            promptIndex = (promptIndex + 1) % prompts.length;
+            showPrompt();
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        btnStart.addEventListener('click', () => {
+            setStage('compose');
+            showPrompt();
+            composer.focus();
+        });
+
+        btnNext.addEventListener('click', () => {
+            const text = composer.value.trim();
+            if (!text) return;
+            submittedTexts.set(promptIndex, text);
+            composer.value = '';
+            advancePrompt();
+        });
+
+        btnSkip.addEventListener('click', () => {
+            composer.value = '';
+            advancePrompt();
+        });
+
+        btnBack.addEventListener('click', () => {
+            if (promptIndex === 0) return;
+            const currentText = composer.value.trim();
+            if (currentText) submittedTexts.set(promptIndex, currentText);
+            promptIndex--;
+            showPrompt();
+        });
+
+        btnFine.addEventListener('click', () => {
+            const currentText = composer.value.trim();
+            if (currentText) submittedTexts.set(promptIndex, currentText);
+            if (submittedTexts.size === 0) {
+                // Gentle nudge — no error UI, just refuse
+                return;
+            }
+
+            const reviewBody = document.getElementById('review-body');
+            reviewBody.innerHTML = '';
+
+            for (const [index, text] of submittedTexts) {
+                const item = document.createElement('div');
+                item.className = 'review-item';
+                item.dataset.index = index;
+                item.innerHTML = `<label>${prompts[index]}</label><textarea rows="2"></textarea>`;
+                item.querySelector('textarea').value = text;
+                reviewBody.appendChild(item);
+            }
+
+            setStage('review');
+
+            requestAnimationFrame(() => {
+                reviewBody.querySelectorAll('textarea').forEach(ta => {
+                    autoResize(ta);
+                    ta.addEventListener('input', () => autoResize(ta));
+                });
+            });
+        });
+
+        submitBtn.addEventListener('click', async () => {
+            const name = document.getElementById('user-name').value.trim();
+            const items = document.querySelectorAll('.review-item');
+            const payloads = Array.from(items)
+                .map(item => {
+                    const index = parseInt(item.dataset.index);
+                    const text = item.querySelector('textarea').value.trim();
+                    if (!text) return null;
+                    return { text, name, prompt: prompts[index], session_id: sessionId };
+                })
+                .filter(Boolean);
+
+            if (payloads.length === 0) {
+                submitErr.textContent = 'Hai cancellato tutto. Aggiungi almeno una risposta.';
+                return;
+            }
+
+            submitErr.textContent = '';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sparando…';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/Bastard%20Submissions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payloads)
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                setStage('done');
+            } catch (e) {
+                submitErr.textContent = 'Qualcosa è andato storto. Riprova tra un attimo.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Spara';
+            }
+        });
+    </script>
+</body>
+</html>
