@@ -168,7 +168,7 @@
             transition: opacity 0.1s ease;
         }
         .pill:active { opacity: 0.7; }
-        .pill-fine, .pill-back {
+        .pill-back {
             background: var(--dark);
             color: var(--white);
             flex: 100 1 0;
@@ -187,6 +187,26 @@
             color: var(--dark);
             flex: 120 1 0;
         }
+        .pill-fine {
+            background: var(--dark);
+            color: var(--white);
+            flex: 100 1 0;
+            opacity: 0.35;
+            margin-left: 12px;
+            transition: background 200ms ease, opacity 200ms ease;
+        }
+        .pill-fine.has-saves {
+            background: var(--pink);
+            opacity: 1;
+        }
+        .pill-fine.pulse-once {
+            animation: bastaPulse 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes bastaPulse {
+            0%   { transform: scale(1); }
+            50%  { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
         .pill img {
             height: 20px;
             width: auto;
@@ -194,6 +214,17 @@
         }
         .pill-next img { height: 24px; }
         .pill:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .basta-hint {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 250ms ease;
+            min-height: 18px;
+        }
+        .basta-hint.visible { opacity: 1; }
 
         /* REVIEW stage */
         #stage-review { gap: 24px; }
@@ -317,10 +348,11 @@
         <textarea class="mock-input" id="composer" placeholder="Scrivi qui la tua versione bastarda del prompt o push notification"></textarea>
         <div class="button-row">
             <button class="pill pill-back" id="btn-back" title="Indietro"><img src="../assets/back.svg" alt="Indietro"></button>
-            <button class="pill pill-fine" id="btn-fine">Fine</button>
             <button class="pill pill-skip" id="btn-skip" title="Salta"><img src="../assets/x.svg" alt="Salta"></button>
             <button class="pill pill-next" id="btn-next" title="Invia"><img src="../assets/arrow.svg" alt="Invia"></button>
+            <button class="pill pill-fine" id="btn-fine" disabled>Basta</button>
         </div>
+        <p class="basta-hint" id="basta-hint">Premi <strong>Basta</strong> quando hai finito per rivedere e inviare le tue risposte.</p>
     </section>
 
     <!-- REVIEW -->
@@ -421,12 +453,33 @@
         const btnSkip   = document.getElementById('btn-skip');
         const btnBack   = document.getElementById('btn-back');
         const btnFine   = document.getElementById('btn-fine');
+        const bastaHint = document.getElementById('basta-hint');
         const submitErr = document.getElementById('submit-err');
         const submitBtn = document.getElementById('btn-submit-all');
 
         let promptIndex = 0;
         let typing = false;
+        let firstSaveSeen = false;
         const submittedTexts = new Map();
+
+        function updateBasta() {
+            const n = submittedTexts.size;
+            const hasCurrent = composer.value.trim().length > 0;
+            btnFine.disabled = !(n > 0 || hasCurrent);
+            if (n > 0) {
+                btnFine.textContent = `Basta (${n}) →`;
+                btnFine.classList.add('has-saves');
+                if (!firstSaveSeen) {
+                    firstSaveSeen = true;
+                    btnFine.classList.add('pulse-once');
+                    btnFine.addEventListener('animationend', () => btnFine.classList.remove('pulse-once'), { once: true });
+                    bastaHint.classList.add('visible');
+                }
+            } else {
+                btnFine.textContent = 'Basta';
+                btnFine.classList.remove('has-saves');
+            }
+        }
 
         function typewriter(text, speed = 18) {
             if (typing) {
@@ -454,6 +507,7 @@
             composer.value = submittedTexts.get(promptIndex) || '';
             typewriter(prompts[promptIndex]);
             refreshProgress();
+            updateBasta();
         }
 
         function advancePrompt() {
@@ -477,6 +531,7 @@
             if (!text) return;
             submittedTexts.set(promptIndex, text);
             composer.value = '';
+            updateBasta();
             advancePrompt();
         });
 
@@ -491,7 +546,10 @@
             if (currentText) submittedTexts.set(promptIndex, currentText);
             promptIndex--;
             showPrompt();
+            updateBasta();
         });
+
+        composer.addEventListener('input', updateBasta);
 
         btnFine.addEventListener('click', () => {
             const currentText = composer.value.trim();
