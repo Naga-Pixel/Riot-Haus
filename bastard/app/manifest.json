@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#00181E",
     "theme_color": "#00181E",
-    "description": "A gratitude journal with absolutely no patience for your excuses.",
+    "description": "Un diario della gratitudine che non sopporta le tue scuse.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "related_applications": [

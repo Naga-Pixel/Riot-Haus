@@ -86,15 +86,15 @@
     };
 
     var STEPS_ANDROID = [
-      { icon: SVG.dots,    html: 'Tap the <strong>menu</strong> button (three dots) at the top right of Chrome.' },
-      { icon: SVG.install, html: 'Choose <strong>&ldquo;Install app&rdquo;</strong> or <strong>&ldquo;Add to Home screen&rdquo;</strong>.' },
-      { icon: SVG.check,   html: 'Tap <strong>Install</strong>. The app will appear on your home screen.' }
+      { icon: SVG.dots,    html: 'Tocca il pulsante <strong>menu</strong> (tre puntini) in alto a destra in Chrome.' },
+      { icon: SVG.install, html: 'Scegli <strong>&ldquo;Installa app&rdquo;</strong> oppure <strong>&ldquo;Aggiungi a schermata Home&rdquo;</strong>.' },
+      { icon: SVG.check,   html: 'Tocca <strong>Installa</strong>. L\u2019app comparirà sulla schermata Home.' }
     ];
 
     var STEPS_IOS = [
-      { icon: SVG.share, html: 'Tap the <strong>Share</strong> button at the bottom of Safari (a box with an up arrow).' },
-      { icon: SVG.plus,  html: 'Scroll down and tap <strong>&ldquo;Add to Home Screen&rdquo;</strong>.' },
-      { icon: SVG.check, html: 'Tap <strong>Add</strong> in the top right. The app will appear on your home screen.' }
+      { icon: SVG.share, html: 'Tocca il pulsante <strong>Condividi</strong> in basso in Safari (la casella con la freccia in su).' },
+      { icon: SVG.plus,  html: 'Scorri in basso e tocca <strong>&ldquo;Aggiungi a Home&rdquo;</strong>.' },
+      { icon: SVG.check, html: 'Tocca <strong>Aggiungi</strong> in alto a destra. L\u2019app comparirà sulla schermata Home.' }
     ];
 
     var titleEl = document.getElementById('ub-install-title');
@@ -123,8 +123,8 @@
 
     if (footEl) {
       footEl.innerHTML = isIOS
-        ? 'Make sure you\u2019re using <strong>Safari</strong>. \u201CAdd to Home Screen\u201D isn\u2019t available in Chrome or Firefox on iPhone.'
-        : 'Once installed, close this tab and open the app from your home screen.';
+        ? 'Assicurati di usare <strong>Safari</strong>. \u201CAggiungi a Home\u201D non è disponibile in Chrome o Firefox su iPhone.'
+        : 'Una volta installata, chiudi questa scheda e apri l\u2019app dalla schermata Home.';
     }
 
     // On Android/desktop Chrome, `appinstalled` fires when the install
@@ -138,15 +138,15 @@
     });
 
     function showThanks() {
-      if (titleEl) titleEl.textContent = 'Thanks for installing.';
+      if (titleEl) titleEl.textContent = 'Grazie per aver installato.';
       if (subEl) {
         subEl.textContent =
-          'Now open the app from your home screen.';
+          'Adesso apri l\u2019app dalla schermata Home.';
       }
       stepsBox.innerHTML =
         '<div class="ub-step">'
         + '<div class="ub-step-num">' + SVG.home + '</div>'
-        + '<div class="ub-step-body">Close this tab. Tap the <strong>Ungrateful Bastard</strong> icon on your home screen to get started.</div>'
+        + '<div class="ub-step-body">Chiudi questa scheda. Tocca l\u2019icona <strong>Ungrateful Bastard</strong> sulla schermata Home per cominciare.</div>'
         + '</div>';
       if (footEl) footEl.innerHTML = '';
     }
