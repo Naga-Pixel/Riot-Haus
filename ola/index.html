@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concert+Dinner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: "Gissela";
+      src: url("gissela-modern-classy-logo-font-2026-04-07-06-21-37-utc/Gissela.woff2") format("woff2"),
+           url("gissela-modern-classy-logo-font-2026-04-07-06-21-37-utc/Gissela.woff") format("woff"),
+           url("gissela-modern-classy-logo-font-2026-04-07-06-21-37-utc/Gissela.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    .hero {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0;
+      background-image: url("point-normal-0nFaVH4tV1w-unsplash.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .hero__overline {
+      position: relative;
+      z-index: 1;
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 20px;
+      /* offset the trailing letter-spacing so the line stays optically centred */
+      margin-left: 20px;
+      color: #fff;
+      font-size: clamp(0.75rem, 2vw, 1.125rem);
+      margin-bottom: 1.5rem;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero__title {
+      position: relative;
+      z-index: 1;
+      font-family: "Gissela", serif;
+      color: #fff;
+      font-size: clamp(2rem, 13vw, 18rem);
+      font-weight: normal;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      max-width: 100%;
+      white-space: nowrap;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+
+      /* Enable the font's fancy lettering: ligatures (er, ss...),
+         stylistic set 01 (decorative e), stylistic alternates + kerning */
+      font-feature-settings: "liga" 1, "ss01" 1, "salt" 1, "kern" 1;
+      -webkit-font-feature-settings: "liga" 1, "ss01" 1, "salt" 1, "kern" 1;
+      font-variant-ligatures: common-ligatures;
+    }
+
+    .message {
+      background: #fff;
+      padding: 0;
+    }
+
+    .message__copy {
+      font-family: "Gissela", serif;
+      color: #000;
+      font-size: 120px;
+      line-height: 1.4;
+      font-feature-settings: "liga" 1, "ss01" 1, "salt" 1, "kern" 1;
+      -webkit-font-feature-settings: "liga" 1, "ss01" 1, "salt" 1, "kern" 1;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <p class="hero__overline">Happy Birthday Ola</p>
+    <h1 class="hero__title">Concert+Dinner</h1>
+  </section>
+
+  <section class="message">
+    <p class="message__copy">I didn&rsquo;t think I'd clutter your life with any more stuff so I&rsquo;m giving you some quality time in appreciation of the beautiful person you are. Not sure if we can celebrate tonight but we can arrange a proper reboot when you get back  Xxx Andrea</p>
+  </section>
+</body>
+</html>
