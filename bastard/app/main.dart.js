@@ -94199,7 +94199,7 @@ if(r!=null)B.b.P(s,A.b([B.on,A.bl(r,m,m,m,B.JG,m,m)],l))
 s.push(B.a8v)
 s.push(A.bl("Prima di entrare, leggi.",m,m,m,B.abv,m,m))
 s.push(B.cR)
-s.push(A.bl("Questo \xe8 un gioco. L'app ti prende per il culo: ti insulta, \xe8 volgare, scorretta e a volte dice cose che potrebbero ferirti. \xc8 satira per farti ridere e pensare. \xc8 un esperimento, ma non \xe8 terapia, e soprattutto non \xe8 niente di personale.\n\nSe sei permalos@ questa non \xe8 l'app perte: chiudila e vai pure affanculo.\n\nContinuando accetti di essere pres@ in giro e ci sollevi da ogni responsabilit\xe0.",m,m,m,B.ad_,m,m))
+s.push(A.bl("Questo \xe8 un gioco. L'app ti prende per il culo: ti insulta, \xe8 volgare, scorretta e a volte dice cose che potrebbero ferirti. \xc8 satira per farti ridere e pensare. \xc8 un esperimento, ma non \xe8 terapia, e soprattutto non \xe8 niente di personale.\n\nSe sei permalos@ questa non \xe8 l'app per te: chiudila e vai pure affanculo.\n\nContinuando accetti di essere pres@ in giro e ci sollevi da ogni responsabilit\xe0.",m,m,m,B.ad_,m,m))
 s.push(B.dn)
 r=n.r
 q=r?B.j:B.v
