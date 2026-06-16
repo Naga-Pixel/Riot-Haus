@@ -26,7 +26,7 @@
 'use strict';
 
 const CACHE_PREFIX = 'ub-cache-';
-const CACHE_VERSION = 'd95cd00a3715';
+const CACHE_VERSION = 'a2e7349a0a84';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 // Replaced post-build with a JSON array of relative paths. The string
 // quotes around the placeholder keep this file as valid JS when the
@@ -98,5 +98,68 @@ self.addEventListener('fetch', (event) => {
     } catch (_) {
       return Response.error();
     }
+  })());
+});
+
+// --- Web Push -------------------------------------------------------------
+// These handlers are independent of the precache, so they run in both the
+// template (dev) and injected (prod) builds — they never touch CACHE_NAME.
+//
+// The Supabase Edge Function (push-daily) signs a VAPID payload and POSTs
+// it to each stored endpoint. The payload is a JSON object { title, body },
+// but we fall back to an in-character default if it's missing or unparsable
+// (e.g. an empty "tickle" push), so a notification always shows.
+
+const PUSH_FALLBACK = {
+  title: 'Ungrateful Bastard',
+  body: "Silenzio? Davvero? Pure il Wi-Fi funziona. Di' grazie.",
+};
+
+self.addEventListener('push', (event) => {
+  let data = PUSH_FALLBACK;
+  if (event.data) {
+    try {
+      const parsed = event.data.json();
+      data = {
+        title: parsed.title || PUSH_FALLBACK.title,
+        body: parsed.body || PUSH_FALLBACK.body,
+      };
+    } catch (_) {
+      // Non-JSON payload: treat the raw text as the body.
+      const text = event.data.text();
+      if (text) data = { title: PUSH_FALLBACK.title, body: text };
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: 'icons/Icon-192.png',
+      badge: 'icons/Icon-192.png',
+      // Coalesce repeated nudges into one notification slot.
+      tag: 'ub-daily',
+      renotify: true,
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  // Focus an already-open app window if there is one, otherwise open the
+  // PWA at its scope root. registration.scope is the absolute URL the SW
+  // controls (".../bastard/app/" in prod, ".../" in dev), so this works in
+  // both without hardcoding the deploy path.
+  const target = self.registration.scope;
+  event.waitUntil((async () => {
+    const all = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    });
+    for (const client of all) {
+      if (client.url.startsWith(target) && 'focus' in client) {
+        return client.focus();
+      }
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(target);
   })());
 });
