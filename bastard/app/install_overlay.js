@@ -1,75 +1,42 @@
-// PWA install gate + instructions overlay.
+// PWA install gate + instructions overlay (React build).
 //
 // Behavior:
-//   - Running standalone (installed PWA, launched from home screen):
-//     inject flutter_bootstrap.js and let the app run normally.
+//   - Running standalone (installed PWA) or on localhost: do nothing here;
+//     src/main.tsx mounts the app.
 //   - Running in a browser tab: show a fullscreen install overlay with
-//     platform-specific steps and do NOT load Flutter at all. The user
-//     cannot dismiss the overlay — they have to install. After install
-//     fires (Android), we swap the content to a "thanks, open from your
-//     home screen" message.
+//     platform-specific steps. The React app is NOT mounted (main.tsx makes
+//     the same standalone/localhost check), so the overlay is all the user
+//     sees until they install + launch from the home screen.
 //
-// Why this is the install gate:
-// When users click "Install" on the landing page at /bastard/install/, they
-// land here. Chrome will only register the install against this scope
-// (which has the manifest + service worker), so the install MUST happen
+// Why the install gate: Chrome registers the install against this scope
+// (which has the manifest + service worker), so the install must happen
 // from inside /bastard/app/.
-//
-// CSP note: the page's CSP has `script-src 'self'` without 'unsafe-inline',
-// so this MUST be an external file — inline <script> blocks won't execute.
 
 (function () {
   var isStandalone = (typeof window.matchMedia === 'function'
       && window.matchMedia('(display-mode: standalone)').matches)
     || window.navigator.standalone === true;
 
-  // Dev bypass: when serving from localhost, skip the install gate so the
-  // app is testable in a normal browser tab. Production (riot.haus) still
-  // gates as usual.
   var host = window.location.hostname;
   var isLocalDev = host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
 
+  // Installed-PWA / dev path: app mounts via main.tsx, no overlay.
   if (isStandalone || isLocalDev) {
-    // Installed-PWA path: clean any stale ?install=1 from the URL,
-    // then load Flutter and bail.
-    stripInstallParam();
-    loadFlutter();
     return;
   }
 
-  // Browser-tab path: show the overlay, never load Flutter.
-
-  // Clear any stale "installed" flag — browsers fire no event on uninstall,
-  // so the flag could be wrong, and we want the landing page to reflect
-  // reality.
+  // Browser-tab path: show the overlay.
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     try { localStorage.removeItem('ub-pwa-installed'); } catch (_) {}
   });
 
-  // Flag <html> so the overlay CSS (in index.html) makes it visible as soon
-  // as the markup is parsed.
   document.documentElement.classList.add('ub-show-install-overlay');
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
-  }
-
-  function loadFlutter() {
-    var s = document.createElement('script');
-    s.src = 'flutter_bootstrap.js';
-    s.async = true;
-    document.head.appendChild(s);
-  }
-
-  function stripInstallParam() {
-    try {
-      var clean = new URL(window.location.href);
-      clean.searchParams.delete('install');
-      history.replaceState({}, '', clean.toString());
-    } catch (_) {}
   }
 
   function init() {
@@ -88,13 +55,13 @@
     var STEPS_ANDROID = [
       { icon: SVG.dots,    html: 'Tocca il pulsante <strong>menu</strong> (tre puntini) in alto a destra in Chrome.' },
       { icon: SVG.install, html: 'Scegli <strong>&ldquo;Installa app&rdquo;</strong> oppure <strong>&ldquo;Aggiungi a schermata Home&rdquo;</strong>.' },
-      { icon: SVG.check,   html: 'Tocca <strong>Installa</strong>. L\u2019app comparirà sulla schermata Home.' }
+      { icon: SVG.check,   html: 'Tocca <strong>Installa</strong>. L\u2019app comparir\u00e0 sulla schermata Home.' }
     ];
 
     var STEPS_IOS = [
       { icon: SVG.share, html: 'Tocca il pulsante <strong>Condividi</strong> in basso in Safari (la casella con la freccia in su).' },
       { icon: SVG.plus,  html: 'Scorri in basso e tocca <strong>&ldquo;Aggiungi a Home&rdquo;</strong>.' },
-      { icon: SVG.check, html: 'Tocca <strong>Aggiungi</strong> in alto a destra. L\u2019app comparirà sulla schermata Home.' }
+      { icon: SVG.check, html: 'Tocca <strong>Aggiungi</strong> in alto a destra. L\u2019app comparir\u00e0 sulla schermata Home.' }
     ];
 
     var titleEl = document.getElementById('ub-install-title');
@@ -123,15 +90,10 @@
 
     if (footEl) {
       footEl.innerHTML = isIOS
-        ? 'Assicurati di usare <strong>Safari</strong>. \u201CAggiungi a Home\u201D non è disponibile in Chrome o Firefox su iPhone.'
+        ? 'Assicurati di usare <strong>Safari</strong>. \u201CAggiungi a Home\u201D non \u00e8 disponibile in Chrome o Firefox su iPhone.'
         : 'Una volta installata, chiudi questa scheda e apri l\u2019app dalla schermata Home.';
     }
 
-    // On Android/desktop Chrome, `appinstalled` fires when the install
-    // completes. Swap the overlay content to a thank-you message asking the
-    // user to launch from the home screen. (iOS Safari doesn\u2019t fire
-    // this event — there the footer text already tells them to open from
-    // the home screen.)
     window.addEventListener('appinstalled', function () {
       try { localStorage.setItem('ub-pwa-installed', '1'); } catch (_) {}
       showThanks();
@@ -140,8 +102,7 @@
     function showThanks() {
       if (titleEl) titleEl.textContent = 'Grazie per aver installato.';
       if (subEl) {
-        subEl.textContent =
-          'Adesso apri l\u2019app dalla schermata Home.';
+        subEl.textContent = 'Adesso apri l\u2019app dalla schermata Home.';
       }
       stepsBox.innerHTML =
         '<div class="ub-step">'

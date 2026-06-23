@@ -1,61 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/bastard/app/">
-
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.gstatic.com https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; base-uri 'self'; form-action 'none'; object-src 'none'">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Un diario della gratitudine con l'allergia alle cazzate.">
   <meta name="theme-color" content="#00181E">
 
   <!-- Reset browser defaults and paint the page bg the same as the card top
-       so the iOS status bar (which extends over the page with
-       apple-mobile-web-app-status-bar-style=black-translucent) blends
-       seamlessly with the card and there is no 1px seam. -->
+       so the iOS status bar blends seamlessly with no 1px seam. -->
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background-color: #00181E;
       overflow: hidden;
-      /* Skip iOS Safari's 300ms double-tap-zoom delay AND its synthetic
-         "first tap is a hover" emulation on PWA standalone, both of which
-         caused buttons to require two taps on iOS. */
+      /* Skip iOS Safari's 300ms double-tap-zoom delay and synthetic hover. */
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
+    #root { height: 100dvh; }
 
-    /* Install instructions overlay.
-       Hidden by default; install_overlay.js adds .ub-show-install-overlay
-       to <html> when ?install=1 is present, which reveals it. The overlay
-       sits on top of Flutter (which loads in the background) so the user
-       reads the steps while on the actual PWA URL — making Chrome's
-       "Install app" install the correct PWA, not a screenshot shortcut.
-
-       Layout notes:
-       - The outer .ub-install-overlay is the scroll container (fixed to the
-         viewport, full height via 100dvh so it tracks the dynamic mobile
-         viewport when the URL bar shows/hides).
-       - The close button is position:fixed against the viewport so it
-         never scrolls away and is always reachable, regardless of how
-         tall the step content gets on large devices.
-       - All content lives inside .ub-install-inner which is normal flow
-         inside the scroll container with safe-area padding. */
+    /* Install instructions overlay. Hidden by default; install_overlay.js
+       adds .ub-show-install-overlay to <html> when NOT running standalone. */
     .ub-install-overlay { display: none; }
     .ub-show-install-overlay { overflow: hidden; }
     .ub-show-install-overlay .ub-install-overlay {
@@ -63,8 +31,8 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       bottom: 0;
-      height: 100vh;        /* fallback */
-      height: 100dvh;       /* dynamic viewport — handles iOS URL bar */
+      height: 100vh;
+      height: 100dvh;
       z-index: 2147483647;
       background: #00181E;
       color: #fff;
@@ -100,7 +68,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* Top padding clears the fixed close button. */
       padding: calc(76px + env(safe-area-inset-top, 0px))
                max(20px, env(safe-area-inset-right, 20px))
                calc(40px + env(safe-area-inset-bottom, 0px))
@@ -184,27 +151,19 @@
   <meta name="apple-mobile-web-app-title" content="Ungrateful Bastard">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
   <title>Ungrateful Bastard</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- Install instructions overlay handler. External file because the CSP
-       above forbids inline scripts (script-src 'self' without 'unsafe-inline').
-       Loaded blocking (no async/defer) so the .ub-show-install-overlay class
-       is set on <html> before <body> is painted — no flash of Flutter
-       behind the overlay in browser mode.
-
-       This script is now responsible for loading flutter_bootstrap.js as
-       well: it only injects it when running as an installed PWA (display
-       mode = standalone). In a regular browser tab Flutter never loads —
-       the install overlay is all the user sees. -->
+  <!-- Install gate / overlay. Runs before the app mounts (no defer) so the
+       overlay class is set on <html> before first paint. -->
   <script src="install_overlay.js"></script>
+  <script type="module" crossorigin src="/bastard/app/assets/index-Msx0bWw0.js"></script>
+  <link rel="stylesheet" crossorigin href="/bastard/app/assets/index-D2bTPyJM.css">
 </head>
 <body>
-  <!-- Install instructions overlay. Hidden by default via CSS; revealed
-       when install_overlay.js sets .ub-show-install-overlay on <html>. -->
+  <!-- Install instructions overlay. Hidden by default via CSS. -->
   <div class="ub-install-overlay" id="ub-install-overlay" role="dialog" aria-modal="true" aria-labelledby="ub-install-title">
     <button class="ub-install-close" id="ub-install-close" type="button" aria-label="Chiudi">&times;</button>
     <div class="ub-install-inner">
@@ -216,12 +175,6 @@
     </div>
   </div>
 
-  <!--
-    Flutter is loaded dynamically by install_overlay.js, and only when
-    the page is running in PWA standalone mode (i.e. launched from the
-    home screen). In a regular browser tab the install overlay shows
-    instead and Flutter never boots — we don't want users seeing the
-    half-rendered app in a tab.
-  -->
+  <div id="root"></div>
 </body>
 </html>
