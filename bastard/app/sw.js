@@ -26,13 +26,13 @@
 'use strict';
 
 const CACHE_PREFIX = 'ub-cache-';
-const CACHE_VERSION = 'c14a68e2d145';
+const CACHE_VERSION = 'df289101c06a';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 // Replaced post-build with a JSON array of relative paths. The string
 // quotes around the placeholder keep this file as valid JS when the
 // template hasn't been processed (e.g. during `flutter run` in dev),
 // in which case TEMPLATE === true and we no-op.
-const PRECACHE = ["assets/index-WwnFFbOC.css","assets/index-XUDey6dP.js","favicon.png","fonts/NotoSansMono-Variable.ttf","fonts/ZalandoSansExpanded-ExtraBold.ttf","fonts/ZalandoSansSemiExpanded-VariableFont_wght.ttf","icons/Icon-1024.png","icons/Icon-192.png","icons/Icon-512.png","icons/Icon-maskable-1024.png","icons/Icon-maskable-192.png","icons/Icon-maskable-512.png","icons/icon.svg","icons/moods/mood_1.png","icons/moods/mood_2.png","icons/moods/mood_3.png","icons/moods/mood_4.png","icons/moods/mood_5.png","images/asset_1.png","images/asset_2.png","images/asset_3.png","images/asset_4.png","images/asset_5.png","images/logo.png","index.html","install_overlay.js","manifest.json"];
+const PRECACHE = ["assets/index-CMuxKpoT.js","assets/index-DlVD3tJ1.css","favicon.png","fonts/NotoSansMono-Variable.ttf","fonts/ZalandoSansExpanded-ExtraBold.ttf","fonts/ZalandoSansSemiExpanded-VariableFont_wght.ttf","icons/Icon-1024.png","icons/Icon-192.png","icons/Icon-512.png","icons/Icon-maskable-1024.png","icons/Icon-maskable-192.png","icons/Icon-maskable-512.png","icons/icon.svg","icons/moods/mood_1.png","icons/moods/mood_2.png","icons/moods/mood_3.png","icons/moods/mood_4.png","icons/moods/mood_5.png","images/asset_1.png","images/asset_2.png","images/asset_3.png","images/asset_4.png","images/asset_5.png","images/logo.png","index.html","install_overlay.js","manifest.json"];
 const TEMPLATE = typeof PRECACHE === 'string';
 
 self.addEventListener('install', (event) => {
