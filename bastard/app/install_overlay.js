@@ -54,7 +54,7 @@
 
     var STEPS_ANDROID = [
       { icon: SVG.dots,    html: 'Tocca il pulsante <strong>menu</strong> (tre puntini) in alto a destra in Chrome.' },
-      { icon: SVG.install, html: 'Scegli <strong>&ldquo;Installa app&rdquo;</strong> oppure <strong>&ldquo;Aggiungi a schermata Home&rdquo;</strong>.' },
+      { icon: SVG.install, html: 'Scorri fino ad <strong>&ldquo;Aggiungi alla schermata home&rdquo;</strong>.' },
       { icon: SVG.check,   html: 'Tocca <strong>Installa</strong>. L\u2019app comparir\u00e0 sulla schermata Home.' }
     ];
 
