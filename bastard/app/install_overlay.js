@@ -53,14 +53,12 @@
     };
 
     var STEPS_ANDROID = [
-      { icon: SVG.dots,    html: 'Tocca il pulsante <strong>menu</strong> (tre puntini) in alto a destra in Chrome.' },
-      { icon: SVG.install, html: 'Scorri fino ad <strong>&ldquo;Aggiungi alla schermata home&rdquo;</strong>.' },
-      { icon: SVG.check,   html: 'Tocca <strong>Installa</strong>. L\u2019app comparir\u00e0 sulla schermata Home.' }
+      { icon: SVG.dots,  html: 'Tocca il pulsante <strong>menu</strong> (tre puntini) in alto a destra in Chrome, poi scegli <strong>&ldquo;Aggiungi alla schermata home&rdquo;</strong>.' },
+      { icon: SVG.check, html: 'Tocca <strong>Installa</strong>. L\u2019app comparir\u00e0 sulla schermata Home.' }
     ];
 
     var STEPS_IOS = [
-      { icon: SVG.share, html: 'Tocca il pulsante <strong>Condividi</strong> in basso in Safari (la casella con la freccia in su).' },
-      { icon: SVG.plus,  html: 'Scorri in basso e tocca <strong>&ldquo;Aggiungi a Home&rdquo;</strong>.' },
+      { icon: SVG.share, html: 'Tocca il pulsante <strong>Condividi</strong> in basso in Safari (la casella con la freccia in su), poi scorri e tocca <strong>&ldquo;Aggiungi a Home&rdquo;</strong> <em>(se non la vedi, tocca prima &ldquo;Altro&rdquo; o &ldquo;Modifica azioni&rdquo; \u2014 il nome cambia a seconda della versione di iOS)</em>.' },
       { icon: SVG.check, html: 'Tocca <strong>Aggiungi</strong> in alto a destra. L\u2019app comparir\u00e0 sulla schermata Home.' }
     ];
 
