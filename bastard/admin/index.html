@@ -170,7 +170,7 @@
     const TABLE         = 'Bastard Submissions';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' }
+      auth: { persistSession: true, autoRefreshToken: true }
     });
 
     const view = document.getElementById('view');
@@ -225,13 +225,16 @@
       renderAdmin();
     }
 
-    // ----- Signed-out view -----
+    // ----- Signed-out view (step 1: request an 8-digit code) -----
+    // NOTE: no emailRedirectTo — that would generate a PKCE magic link, but the
+    // Supabase email templates are code-only ({{ .Token }}, no ConfirmationURL).
+    // We verify the code in renderVerify() below.
     function renderSignIn() {
       view.innerHTML = `
         <form class="signin" id="signin-form" autocomplete="off">
           <label for="email">Admin email</label>
           <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email">
-          <button type="submit" class="primary">Send magic link</button>
+          <button type="submit" class="primary">Send code</button>
           <div class="status" id="signin-status"></div>
         </form>
       `;
@@ -243,15 +246,43 @@
         if (!email) return;
         status.classList.remove('error');
         status.textContent = 'Sending…';
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: location.href }
-        });
+        const { error } = await supabase.auth.signInWithOtp({ email });
         if (error) {
           status.classList.add('error');
           status.textContent = error.message;
         } else {
-          status.textContent = 'Check your inbox for the magic link.';
+          renderVerify(email);
+        }
+      });
+    }
+
+    // ----- Signed-out view (step 2: verify the 8-digit code) -----
+    function renderVerify(email) {
+      view.innerHTML = `
+        <form class="signin" id="verify-form" autocomplete="off">
+          <label for="code">Enter the 8-digit code sent to ${escapeHtml(email)}</label>
+          <input type="text" id="code" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="12345678">
+          <button type="submit" class="primary">Verify</button>
+          <button type="button" id="back-btn">Use a different email</button>
+          <div class="status" id="verify-status"></div>
+        </form>
+      `;
+      const form = document.getElementById('verify-form');
+      const status = document.getElementById('verify-status');
+      document.getElementById('back-btn').onclick = () => renderSignIn();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = document.getElementById('code').value.trim();
+        if (!token) return;
+        status.classList.remove('error');
+        status.textContent = 'Verifying…';
+        const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+        if (error) {
+          status.classList.add('error');
+          status.textContent = error.message;
+        } else {
+          status.textContent = 'Signed in.';
+          // onAuthStateChange re-renders into the admin view.
         }
       });
     }
