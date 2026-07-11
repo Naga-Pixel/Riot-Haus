@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Bastard Submissions — Admin</title>
+  <title>Bastardo Ingrato — Admin</title>
   <style>
     :root {
       --dark: #00181e;
@@ -96,6 +96,20 @@
     .signin .status { font-size: 12px; color: var(--mint); min-height: 18px; }
     .signin .error  { color: #ff8a8a; }
 
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tabs button.active {
+      background: var(--mint);
+      color: var(--dark);
+      border-color: var(--mint);
+      font-weight: 700;
+    }
+
     .filters {
       display: flex;
       gap: 8px;
@@ -177,7 +191,7 @@
 <body>
   <main>
     <header>
-      <h1>Bastard Submissions — Admin</h1>
+      <h1>Bastardo Ingrato — Admin</h1>
       <div id="header-right"></div>
     </header>
     <section id="view"></section>
@@ -189,7 +203,42 @@
     const SUPABASE_URL  = 'https://eqavyxuhkdvhnpfytowj.supabase.co';
     const SUPABASE_ANON = 'sb_publishable_D_kB-YFd79qvUL6mhdODuQ_KWMuZwS2';
     const ADMIN_EMAIL   = '1andreamattioli1@gmail.com';
-    const TABLE         = 'Bastard Submissions';
+
+    // Two moderatable datasets share the same UI. Each maps the generic admin
+    // concepts (a "live" gate, a canonical body + gendered variants, a context
+    // column) onto its own table + column names.
+    const DATASETS = {
+      prompts: {
+        label: 'Prompts',
+        table: 'Bastard Submissions',
+        select: 'id, created_at, name, prompt, text, text_donna, text_fluid, approved',
+        liveField: 'approved',
+        bodyField: 'text',
+        donnaField: 'text_donna',
+        fluidField: 'text_fluid',
+        hasTitle: false,
+        context: (r) => r.prompt,
+        contextHeader: 'Prompt',
+        liveLabel: 'Approved',
+        liveBadge: 'approved',
+        approveVerb: 'Approve',
+      },
+      notifications: {
+        label: 'Notifications',
+        table: 'notification_messages',
+        select: 'id, created_at, name, title, body, body_donna, body_fluid, active',
+        liveField: 'active',
+        bodyField: 'body',
+        donnaField: 'body_donna',
+        fluidField: 'body_fluid',
+        hasTitle: true,
+        context: (r) => r.title,
+        contextHeader: 'Title',
+        liveLabel: 'Live',
+        liveBadge: 'live',
+        approveVerb: 'Make live',
+      },
+    };
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: { persistSession: true, autoRefreshToken: true }
@@ -198,9 +247,12 @@
     const view = document.getElementById('view');
     const headerRight = document.getElementById('header-right');
 
-    let currentFilter = 'pending'; // 'pending' | 'approved' | 'all'
+    let currentDataset = 'prompts'; // 'prompts' | 'notifications'
+    let currentFilter = 'pending';  // 'pending' | 'approved' | 'all'
     let currentSession = null;
     let rowsById = {}; // id -> row, so edit mode can prefill without a refetch
+
+    const ds = () => DATASETS[currentDataset];
 
     function fmtDate(iso) {
       if (!iso) return '';
@@ -322,14 +374,28 @@
 
     // ----- Admin view -----
     async function renderAdmin() {
+      const d = ds();
       view.innerHTML = `
+        <div class="tabs">
+          <button data-dataset="prompts">Prompts</button>
+          <button data-dataset="notifications">Notifications</button>
+        </div>
         <div class="filters">
           <button data-filter="pending">Pending</button>
-          <button data-filter="approved">Approved</button>
+          <button data-filter="approved">${escapeHtml(d.liveLabel)}</button>
           <button data-filter="all">All</button>
         </div>
         <div id="list"><div class="loading">Loading…</div></div>
       `;
+      const tabBtns = view.querySelectorAll('.tabs button');
+      tabBtns.forEach(btn => {
+        if (btn.dataset.dataset === currentDataset) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          if (btn.dataset.dataset === currentDataset) return;
+          currentDataset = btn.dataset.dataset;
+          renderAdmin();
+        });
+      });
       const filterBtns = view.querySelectorAll('.filters button');
       filterBtns.forEach(btn => {
         if (btn.dataset.filter === currentFilter) btn.classList.add('active');
@@ -346,14 +412,15 @@
       const list = document.getElementById('list');
       if (!list) return;
       list.innerHTML = '<div class="loading">Loading…</div>';
+      const d = ds();
 
-      let q = supabase.from(TABLE)
-        .select('id, created_at, name, prompt, text, text_donna, text_fluid, approved')
+      let q = supabase.from(d.table)
+        .select(d.select)
         .order('created_at', { ascending: false })
         .limit(500);
 
-      if (currentFilter === 'pending')  q = q.eq('approved', false);
-      if (currentFilter === 'approved') q = q.eq('approved', true);
+      if (currentFilter === 'pending')  q = q.eq(d.liveField, false);
+      if (currentFilter === 'approved') q = q.eq(d.liveField, true);
 
       const { data, error } = await q;
       if (error) {
@@ -364,8 +431,8 @@
         const msg = currentFilter === 'pending'
           ? 'Nothing pending. Inbox zero.'
           : currentFilter === 'approved'
-            ? 'No approved submissions yet.'
-            : 'No submissions at all.';
+            ? `No ${d.liveLabel.toLowerCase()} rows yet.`
+            : 'Nothing here at all.';
         list.innerHTML = `<div class="empty"><p>${msg}</p></div>`;
         return;
       }
@@ -373,19 +440,23 @@
       rowsById = {};
       data.forEach(r => { rowsById[r.id] = r; });
 
-      const rows = data.map(r => `
+      const rows = data.map(r => {
+        const live = r[d.liveField];
+        const hasGender = r[d.donnaField] || r[d.fluidField];
+        return `
         <tr data-id="${escapeHtml(r.id)}">
           <td class="col-date">${escapeHtml(fmtDate(r.created_at))}</td>
           <td class="col-name">${escapeHtml(r.name || '—')}</td>
-          <td class="col-prompt">${escapeHtml(r.prompt || '')}</td>
-          <td class="col-text">${escapeHtml(r.text || '')}${(r.text_donna || r.text_fluid) ? '<span class="badge">gendered</span>' : ''}${r.approved ? '<span class="badge">approved</span>' : ''}</td>
+          <td class="col-prompt">${escapeHtml(d.context(r) || '')}</td>
+          <td class="col-text">${escapeHtml(r[d.bodyField] || '')}${hasGender ? '<span class="badge">gendered</span>' : ''}${live ? `<span class="badge">${escapeHtml(d.liveBadge)}</span>` : ''}</td>
           <td class="col-actions">
-            ${r.approved ? '' : '<button class="primary" data-action="approve">Approve</button>'}
+            ${live ? '' : `<button class="primary" data-action="approve">${escapeHtml(d.approveVerb)}</button>`}
             <button data-action="edit">Edit</button>
             <button class="danger" data-action="delete">Delete</button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
 
       list.innerHTML = `
         <table>
@@ -393,7 +464,7 @@
             <tr>
               <th>Created</th>
               <th>Name</th>
-              <th>Prompt</th>
+              <th>${escapeHtml(d.contextHeader)}</th>
               <th>Response</th>
               <th></th>
             </tr>
@@ -418,16 +489,17 @@
 
       // Disable all row buttons during the request.
       tr.querySelectorAll('button').forEach(b => b.disabled = true);
+      const d = ds();
 
       if (action === 'approve') {
-        const { error } = await supabase.from(TABLE).update({ approved: true }).eq('id', id);
-        if (error) { alert('Approve failed: ' + error.message); tr.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+        const { error } = await supabase.from(d.table).update({ [d.liveField]: true }).eq('id', id);
+        if (error) { alert('Update failed: ' + error.message); tr.querySelectorAll('button').forEach(b => b.disabled = false); return; }
       } else if (action === 'delete') {
-        if (!confirm('Permanently delete this submission? This cannot be undone.')) {
+        if (!confirm('Permanently delete this row? This cannot be undone.')) {
           tr.querySelectorAll('button').forEach(b => b.disabled = false);
           return;
         }
-        const { error } = await supabase.from(TABLE).delete().eq('id', id);
+        const { error } = await supabase.from(d.table).delete().eq('id', id);
         if (error) { alert('Delete failed: ' + error.message); tr.querySelectorAll('button').forEach(b => b.disabled = false); return; }
       }
       loadRows();
@@ -437,25 +509,33 @@
     // The admin_update RLS policy is column-agnostic, so the same .update() path
     // used by Approve can write all three copy columns.
     function enterEditMode(tr, id) {
+      const d = ds();
       const row = rowsById[id];
       if (!row) return;
       const textCell = tr.querySelector('.col-text');
       const actionsCell = tr.querySelector('.col-actions');
 
+      const titleField = d.hasTitle
+        ? `<label>Titolo</label>
+           <textarea class="edit-field" data-field="title" rows="1"></textarea>`
+        : '';
+
       textCell.innerHTML = `
         <div class="edit-grid">
+          ${titleField}
           <label>Uomo (canonico)</label>
-          <textarea class="edit-field" data-field="text" rows="2"></textarea>
+          <textarea class="edit-field" data-field="body" rows="2"></textarea>
           <label>Donna</label>
-          <textarea class="edit-field" data-field="text_donna" rows="2" placeholder="(vuoto → usa Uomo)"></textarea>
+          <textarea class="edit-field" data-field="donna" rows="2" placeholder="(vuoto → usa Uomo)"></textarea>
           <label>Fluid</label>
-          <textarea class="edit-field" data-field="text_fluid" rows="2" placeholder="(vuoto → usa Uomo)"></textarea>
+          <textarea class="edit-field" data-field="fluid" rows="2" placeholder="(vuoto → usa Uomo)"></textarea>
         </div>
       `;
       // Set values via .value (never innerHTML) so content can't break out.
-      textCell.querySelector('[data-field="text"]').value       = row.text || '';
-      textCell.querySelector('[data-field="text_donna"]').value = row.text_donna || '';
-      textCell.querySelector('[data-field="text_fluid"]').value = row.text_fluid || '';
+      textCell.querySelector('[data-field="body"]').value  = row[d.bodyField] || '';
+      textCell.querySelector('[data-field="donna"]').value = row[d.donnaField] || '';
+      textCell.querySelector('[data-field="fluid"]').value = row[d.fluidField] || '';
+      if (d.hasTitle) textCell.querySelector('[data-field="title"]').value = row.title || '';
 
       actionsCell.innerHTML = `
         <button class="primary" data-action="save">Save</button>
@@ -464,32 +544,36 @@
       actionsCell.querySelector('[data-action="save"]').addEventListener('click', () => saveEdit(tr, id));
       actionsCell.querySelector('[data-action="cancel"]').addEventListener('click', () => loadRows());
 
-      // Cmd/Ctrl+Enter = save, Esc = cancel. Focus the first field.
+      // Cmd/Ctrl+Enter = save, Esc = cancel. Focus the first body field.
       textCell.querySelectorAll('textarea').forEach(ta => {
         ta.addEventListener('keydown', (e) => {
           if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); saveEdit(tr, id); }
           else if (e.key === 'Escape') { e.preventDefault(); loadRows(); }
         });
       });
-      textCell.querySelector('[data-field="text"]').focus();
+      textCell.querySelector('[data-field="body"]').focus();
     }
 
     async function saveEdit(tr, id) {
+      const d = ds();
       const textCell = tr.querySelector('.col-text');
       const actionsCell = tr.querySelector('.col-actions');
       const val = (f) => (textCell.querySelector(`[data-field="${f}"]`)?.value ?? '').trim();
 
-      const text = val('text');
-      if (!text) { alert('Il testo (Uomo) non può essere vuoto.'); return; }
-      const donna = val('text_donna');
-      const fluid = val('text_fluid');
+      const body = val('body');
+      if (!body) { alert('Il testo (Uomo) non può essere vuoto.'); return; }
+      const donna = val('donna');
+      const fluid = val('fluid');
+
+      const update = {
+        [d.bodyField]: body,
+        [d.donnaField]: donna || null, // empty → null so the app falls back to Uomo
+        [d.fluidField]: fluid || null,
+      };
+      if (d.hasTitle) update.title = val('title') || 'Ungrateful Bastard';
 
       actionsCell.querySelectorAll('button').forEach(b => b.disabled = true);
-      const { error } = await supabase.from(TABLE).update({
-        text,
-        text_donna: donna || null, // empty → null so the app falls back to Uomo
-        text_fluid: fluid || null,
-      }).eq('id', id);
+      const { error } = await supabase.from(d.table).update(update).eq('id', id);
       if (error) {
         alert('Save failed: ' + error.message);
         actionsCell.querySelectorAll('button').forEach(b => b.disabled = false);
