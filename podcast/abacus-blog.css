@@ -1,0 +1,1678 @@
+/* ==========================================================================
+   ABACUS BLOG — stylesheet for blog-post.html
+   Values extracted from the compiled Tailwind build on goabacus.co.
+
+   Fonts are uploaded to portal 245182947 and wired in below — nothing to edit.
+   Source files are in assets/ if they ever need re-uploading.
+   ========================================================================== */
+
+/* Inter v4 variable, subset to Latin. Carries both the weight (100–900) and
+   optical size (14–32) axes, so headings get proper display letterforms. */
+@font-face {
+  font-family: "Inter";
+  src: url("assets/Inter-Variable-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("assets/Inter-Variable-Italic-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Metric-matched Arial fallback, so text does not reflow while Inter loads. */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+  size-adjust: 107.12%;
+}
+
+/* Geist Mono, Latin subset, weight axis 100–900. Used only for the small
+   uppercase labels: "On this page", "Related articles", and card meta. */
+@font-face {
+  font-family: "Geist Mono";
+  src: url("assets/GeistMono-Variable-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono Fallback";
+  src: local("Arial");
+  ascent-override: 74.67%;
+  descent-override: 21.92%;
+  line-gap-override: 0%;
+  size-adjust: 134.59%;
+}
+
+/* The Eighties Comeback Regular @font-face is deliberately absent from this
+   deployment. It only ever served .ab-hero-the / .ab-videotext__the, which are
+   blog-homepage classes that do not appear on this page — the face measured as
+   `normal=unloaded`. The italic is declared in podcast.css and is the only cut
+   that ships. See the note there on the licence. */
+
+:root {
+  --ab-fg: #0f0f0f;
+  --ab-bg: #ffffff;
+  --ab-border: rgba(0, 0, 0, 0.12);
+  --ab-primary: #7c6aef;
+  /* The logo's purple, which is a touch deeper than --ab-primary. Used for the
+     dot in "Go.Blog" so it matches the mark rather than the link colour. */
+  --ab-accent: #645aff;
+  --ab-chip: #f5f5f5;
+  --ab-tint: #f8f7ff;
+  --ab-nav: #1a1a1a;
+  --ab-footer: #000000;
+  --ab-container: 1200px;
+  --ab-font: "Inter", "Inter Fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ab-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ab-display: "Eighties Comeback", Georgia, "Times New Roman", serif;
+
+  /* Letter-spacing, relaxed from the original SF Pro values.
+     Inter sets tighter and has a larger x-height, so the source design's
+     -0.04em reads as cramped. To go back to an exact SF Pro match, use:
+     h1 -0.04em / h2 -0.036em / h3 -0.023em / title -0.022em */
+  --ab-track-h1: -0.03em;
+  --ab-track-h2: -0.025em;
+  --ab-track-h3: -0.018em;
+  --ab-track-title: -0.018em;
+}
+
+/* --------------------------------------------------------------------------
+   BASE
+   -------------------------------------------------------------------------- */
+
+.ab *,
+.ab *::before,
+.ab *::after { box-sizing: border-box; }
+
+body.ab {
+  margin: 0;
+  background: var(--ab-bg);
+  color: var(--ab-fg);
+  font-family: var(--ab-font);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ab img { max-width: 100%; display: block; }
+
+/* :where() zeroes this rule's specificity. Written as `.ab a` it scored (0,1,1)
+   and beat every single-class component rule (0,1,0) — .ab-nav__logo and
+   .ab-btn--dark lost their white text and rendered dark-on-dark. */
+:where(.ab a) { color: inherit; text-decoration: none; }
+/* :where() for the same reason as the anchor reset above — as `.ab h1, .ab p`
+   this scored (0,1,1) and silently zeroed the margin on every single-class
+   component rule (.ab-title, .ab-eyebrow, .ab-cta__*, .ab-card__*, ...). */
+:where(.ab h1, .ab h2, .ab h3, .ab h4, .ab p) { margin: 0; }
+
+/* Buttons do not inherit the page font, and [hidden] loses to any component
+   rule that sets a display. Both are load-bearing for the listing filters. */
+:where(.ab button) { font: inherit; background: none; border: 0; cursor: pointer; }
+.ab [hidden] { display: none !important; }
+
+/* --------------------------------------------------------------------------
+   LAYOUT SHELL
+   1200px column with hairline side rules and 8px corner dots.
+   -------------------------------------------------------------------------- */
+
+.ab-container {
+  margin-inline: auto;
+  position: relative;
+  width: 100%;
+}
+
+.ab-rule--top { border-top: 1px solid var(--ab-border); }
+
+/* Dark full-bleed section. Same colour as the sticky header, so when it sits
+   directly below it the two read as one block with no seam.
+
+   It works by re-pointing the three colour tokens rather than by restating
+   colours on each descendant. Anything inside that already says
+   var(--ab-fg) / var(--ab-bg) / var(--ab-border) follows on its own: the side
+   rules, the corner dots, and every part of the hero -- including
+   .ab-videotext__cover, whose whole job is to match the page background. That
+   invariant is now held by the cascade instead of by remembering to update it.
+
+   --ab-border is TRANSPARENT, which is what hides the side rules and the corner
+   dots in this section. transparent rather than border:none / display:none on
+   purpose: the 1px borders still occupy their space, so the column keeps exactly
+   the geometry it has in every other section and the content does not shift by
+   2px against the sections below. Give it a colour and the rules come straight
+   back -- rgba(255,255,255,0.16) is the value that read correctly on this
+   background.
+
+   Only hardcoded rgba(15,15,15,...) values need restating, below. If you add
+   anything to this section, reach for a token and it will just work. */
+.ab-rule--dark {
+  --ab-fg: #ffffff;
+  --ab-bg: #1a1a1a;
+  --ab-border: transparent;
+  background: var(--ab-nav);
+  color: #fff;
+}
+
+/* The muted greys are baked as rgba(15,15,15,...), so they do not follow
+   --ab-fg and have to be restated. Two classes each, so these beat the
+   single-class originals.
+
+   The lede is full white rather than muted: it sits under a white heading, so
+   there is no tonal hierarchy between them -- the size difference carries it. */
+.ab-rule--dark .ab-lede { color: #fff; }
+
+.ab-rule--dark .ab-eyebrow,
+.ab-rule--dark .ab-back { color: rgba(255, 255, 255, 0.6); }
+
+.ab-rule--dark .ab-back:hover { color: #fff; }
+
+/* The inset is held in a custom property, not just in the padding shorthand, so
+   full-bleed children can cancel it with calc(var(--ab-pad-x) * -1) instead of
+   hardcoding 24/40 and silently drifting if this ever changes. */
+.ab-pad { --ab-pad-x: 24px; padding: 0 var(--ab-pad-x); }
+
+.ab-dot { display: none; }
+
+/* Desktop layout starts at 1024, not 1280. A 1280px-wide window only has a
+   ~1265px viewport once the scrollbar is subtracted, so a 1280 breakpoint
+   drops 1280x800 laptops — and the HubSpot editor/preview iframes — into the
+   tablet layout. min() keeps a 24px gutter so the side rules never hug the
+   viewport edge and the -4px corner dots never cause horizontal overflow. */
+@media (min-width: 1024px) {
+  .ab-container--ruled {
+    width: min(var(--ab-container), calc(100% - 48px));
+    border-left: 1px solid var(--ab-border);
+    border-right: 1px solid var(--ab-border);
+  }
+  .ab-pad { --ab-pad-x: 40px; }
+
+  /* The listing hero alone sits hard on the column rules instead of inside
+     them, so "The", "DotDotDot." and the lede start on the same line the side
+     rules draw. Deliberately only this section: the reference design insets
+     body copy ~42px from the rule, and the cards below keep that. It does mean
+     a visible 40px step between the hero and the first card -- intended.
+
+     Scoped inside this media query on purpose. Below 1024 there are no rules
+     to align to and --ab-pad-x is the viewport gutter, so zeroing it there
+     would run the text into the edge of the screen.
+
+     .ab-rule--dark is only ever the listing page header and the comparison page
+     hero -- both of which want this -- so it cannot reach the post template.
+     Two classes (0,2,0) beats .ab-pad above regardless of source order. */
+  .ab-rule--dark .ab-pad { --ab-pad-x: 0px; }
+
+  .ab-dot {
+    display: block;
+    position: absolute;
+    top: -4px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--ab-border);
+    border-radius: 999px;
+    background: transparent;
+  }
+  .ab-dot--tl { left: -4px; }
+  .ab-dot--tr { right: -4px; }
+}
+
+/* --------------------------------------------------------------------------
+   HEADER
+   -------------------------------------------------------------------------- */
+
+.ab-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--ab-nav);
+}
+
+.ab-nav__inner {
+  max-width: var(--ab-container);
+  margin-inline: auto;
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ab-nav__logo {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-title);
+}
+
+/* Same box as .ab-container--ruled, so the logo lines up with the hero below
+   it instead of drifting 24px out below 1248px: same width formula, and the
+   transparent 1px inline border reproduces the ruled container's border so the
+   content edge lands on the identical pixel (101 at a 1400px viewport).
+
+   The border rather than padding:0 0 0 1px because that is what it actually
+   is -- a mirror of the container's box -- and because box-sizing:border-box
+   is global, so it costs no width. Padding is zero here for the same reason
+   the hero's is: the logo and the Schedule Demo button sit on the column rules
+   now, not inside them. Below 1024 the 24px padding above still applies, since
+   there are no rules down there and it is the viewport gutter. */
+@media (min-width: 1024px) {
+  .ab-nav__inner {
+    width: min(var(--ab-container), calc(100% - 48px));
+    max-width: none;
+    padding: 0;
+    border-inline: 1px solid transparent;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   BUTTONS
+   -------------------------------------------------------------------------- */
+
+.ab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ab-btn:hover { opacity: 0.85; }
+.ab-btn--light { background: #fff; color: #0f0f0f; }
+.ab-btn--dark { background: #0f0f0f; color: #fff; }
+
+.ab-btn--outline {
+  border: 1px solid var(--ab-border);
+  color: var(--ab-fg);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ab-btn--outline:hover { opacity: 1; background: var(--ab-chip); border-color: rgba(0, 0, 0, 0.24); }
+
+/* --------------------------------------------------------------------------
+   POST HEADER
+   -------------------------------------------------------------------------- */
+
+.ab-post-head { padding-top: 56px; padding-bottom: 32px; }
+
+@media (min-width: 1024px) {
+  .ab-post-head { padding-top: 112px; }
+}
+
+.ab-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  font-size: 14px;
+  color: rgba(15, 15, 15, 0.5);
+  transition: color 0.15s;
+}
+
+.ab-back:hover { color: var(--ab-fg); }
+
+/* wrap so a long Industry + Type pair drops to a second line on narrow screens
+   instead of overflowing the column. */
+.ab-pill-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px; }
+
+/* The row is emitted unconditionally, so a post carrying neither facet tag would
+   still paint its 20px bottom margin. Same guard as .ab-tags -- :empty is no use
+   because the HubL loops leave whitespace text nodes behind. */
+.ab-pill-row:not(:has(.ab-pill)) { display: none; }
+
+.ab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: var(--ab-chip);
+  padding: 8px 16px;
+  font-size: 12px;
+  letter-spacing: -0.12px;
+}
+
+.ab-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ab-primary);
+}
+
+.ab-title {
+  max-width: 48rem;
+  margin-bottom: 16px;
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 500;
+  letter-spacing: var(--ab-track-h1);
+}
+
+@media (min-width: 1024px) {
+  .ab-title { font-size: 48px; line-height: 56px; }
+}
+
+.ab-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+.ab-meta__item { display: inline-flex; align-items: center; gap: 6px; }
+.ab-meta__author { gap: 8px; }
+.ab-meta__author:hover { color: var(--ab-fg); text-decoration: underline; text-underline-offset: 4px; }
+
+.ab-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   HERO
+   -------------------------------------------------------------------------- */
+
+.ab-hero {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  background: var(--ab-tint);
+  overflow: hidden;
+}
+
+.ab-hero img { width: 100%; height: 100%; object-fit: cover; }
+
+/* --------------------------------------------------------------------------
+   BODY + RAIL
+   -------------------------------------------------------------------------- */
+
+.ab-layout {
+  display: flex;
+  gap: 64px;
+  align-items: flex-start;
+  padding-top: 48px;
+  padding-bottom: 64px;
+}
+
+.ab-article { flex: 1; min-width: 0; max-width: 760px; }
+
+.ab-rail { display: none; }
+
+/* align-self overrides .ab-layout's align-items:flex-start for this one item.
+   Without it the rail shrink-wraps to its content, which makes it exactly as
+   tall as .ab-rail__sticky -- and a sticky element cannot move outside its
+   containing block, so with zero slack it never sticks. The article is the
+   taller item, so stretching the rail to match gives the sticky child the
+   full article height to travel down. Only the rail stretches; .ab-article
+   keeps shrink-wrapping. */
+@media (min-width: 1024px) {
+  .ab-rail { display: block; width: 240px; flex-shrink: 0; align-self: stretch; }
+}
+
+/* 112px = the 64px sticky header + a 48px gap. max-height keeps the whole rail
+   on screen when the TOC is long (24px of breathing room at the bottom);
+   without it a rail taller than the viewport pins its top and leaves the CTA
+   permanently below the fold. overflow-y on the sticky element itself is safe
+   -- only *ancestor* scroll containers break sticky. */
+.ab-rail__sticky {
+  position: sticky;
+  top: 112px;
+  max-height: calc(100vh - 136px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/* Table of contents ------------------------------------------------------- */
+
+.ab-toc { margin-bottom: 32px; }
+
+.ab-toc__label {
+  margin-bottom: 12px;
+  font-family: var(--ab-mono);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.ab-toc__links { display: flex; flex-direction: column; gap: 4px; }
+
+.ab-toc__link {
+  display: block;
+  padding: 4px 0 4px 12px;
+  border-left: 2px solid transparent;
+  font-size: 14px;
+  line-height: 20px;
+  color: rgba(15, 15, 15, 0.5);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.ab-toc__link.is-sub { padding-left: 24px; }
+.ab-toc__link:hover { color: rgba(15, 15, 15, 0.8); }
+.ab-toc__link.is-active { border-left-color: var(--ab-primary); color: var(--ab-fg); }
+
+/* Sidebar CTA ------------------------------------------------------------- */
+
+.ab-cta {
+  border: 1px solid var(--ab-border);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--ab-tint);
+}
+
+.ab-cta__title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+
+.ab-cta__body {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgba(15, 15, 15, 0.6);
+  margin-bottom: 16px;
+}
+
+/* Tags -------------------------------------------------------------------- */
+
+.ab-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--ab-border);
+}
+
+/* The template emits this wrapper for any post that has tags, then filters the
+   Industry:/Type: ones out inside the loop, so a post tagged only with those
+   leaves an empty row -- which would still paint its 48px margin and top rule.
+   :empty cannot be used: the HubL loop leaves whitespace text nodes inside. */
+.ab-tags:not(:has(.ab-tag)) { display: none; }
+
+.ab-tag {
+  border-radius: 999px;
+  background: var(--ab-chip);
+  padding: 6px 14px;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(15, 15, 15, 0.7);
+  transition: background 0.15s, color 0.15s;
+}
+
+.ab-tag:hover { background: #ebebeb; color: var(--ab-fg); }
+
+/* --------------------------------------------------------------------------
+   RELATED ARTICLES
+   -------------------------------------------------------------------------- */
+
+.ab-related { padding-top: 56px; padding-bottom: 72px; }
+
+.ab-eyebrow {
+  margin-bottom: 32px;
+  font-family: var(--ab-mono);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.ab-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px)  { .ab-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .ab-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.ab-card { display: block; }
+
+.ab-card__media {
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  background: var(--ab-tint);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.ab-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ab-card:hover .ab-card__media img { transform: scale(1.03); }
+
+.ab-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-family: var(--ab-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.ab-card__title {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-title);
+  margin-bottom: 8px;
+}
+
+.ab-card:hover .ab-card__title { color: var(--ab-primary); }
+
+.ab-card__excerpt {
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(15, 15, 15, 0.6);
+  margin-bottom: 16px;
+}
+
+.ab-card__byline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.ab-card__dot { opacity: 0.6; }
+
+/* --------------------------------------------------------------------------
+   BLOG LISTING — blog-listing.html
+   -------------------------------------------------------------------------- */
+
+.ab-list-head { padding-top: 56px; padding-bottom: 16px; }
+
+@media (min-width: 1024px) {
+  .ab-list-head { padding-top: 96px; padding-bottom: 32px; }
+}
+
+/* The section below the dark page header sits flush against it, so its top rule
+   draws a visible hairline across the seam (and straight over the featured
+   image). Adjacent-sibling so it only ever hits that one seam -- every other
+   .ab-rule--top keeps its divider. */
+.ab-rule--dark + .ab-rule--top { border-top: 0; }
+
+.ab-eyebrow--flush { margin-bottom: 12px; }
+
+/* clamp() rather than a media query: 160px is right on desktop but far too heavy
+   on a phone. Hits the full 160px from roughly 1145px up.
+
+   max-width:none overrides .ab-title's 48rem. That cap is meant for the tag /
+   author headings. The hero is 750px wide at the 160px cap — only 18px clear of
+   it — and if the cap ever engages it squashes .ab-videotext to a different
+   aspect ratio from its viewBox, at which point preserveAspectRatio="meet"
+   letterboxes the SVG and the video shows in the bands around the word.
+
+   Both children of the h1 are blocks in both branches, so line-height here is
+   inert; the real values are on .ab-hero-the / .ab-hero-word. */
+.ab-title--hero {
+  max-width: none;
+  font-size: clamp(48px, 14vw, 160px);
+  margin-bottom: 24px;
+}
+
+.ab-accent { color: var(--ab-accent); }
+
+/* The two lines of the hero in the fallback (no-video) branch. Both are blocks,
+   so they stack the same way the SVG branch does.
+
+   0.425em = 68/160, so "The" keeps its proportion to the big word as
+   .ab-title--hero's clamp shrinks. The tracking on .ab-title is Inter's; this
+   face does not want it.
+
+   The line-heights are solved backwards from the SVG's baselines (54 and 198 in
+   a 200-unit box). For a line box, baseline-from-top = (L - ascent - descent)/2
+   + ascent, in em of that element:
+     "The",  Eighties Comeback  ascent 1.0     descent 0.3      target 54/68
+     word,   Inter              ascent 0.96875 descent 0.24375  target 137.5/184
+   which give 0.888 and 0.77. Re-solve if either face changes.
+
+   Both line-heights are em of their own element, so they survived the big word
+   growing 15%: "The"'s box stays 0.888 x 68 = 60.4 tall, the word's baseline
+   stays 0.7475 of its own size, and 60.4 + 0.7475 x 184 = 197.9. The 10px gap
+   between "The"'s baseline and the cap line falls out unchanged. */
+.ab-hero-the {
+  display: block;
+  font-family: var(--ab-display);
+  font-size: 0.425em;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 0.888;
+}
+
+/* 1.15em = the big word 15% larger than the heading's clamp, while "The" stays
+   pinned to 68px (it is 0.425em of the parent, not of this). At the 160px cap
+   the word sets at 184px and measures 860.6 wide. Tightest fit is a 320px
+   viewport: 258.2 into 272 available, so 14px clear.
+
+   The negative margin makes the D optically flush with the column, not just
+   boxed flush. Inter's D carries a left sidebearing of 0.0663em, so with the
+   span at the column edge the letter's ink starts 12.2px inside it at 184px --
+   while "The" starts 0.5px OUTSIDE its box and the lede's R 1.5px inside
+   theirs. Boxed flush therefore read as a 12px indent on the big word only.
+   Pulling the box left by exactly that bearing lands all three inks within
+   2px of each other.
+
+   It is em of this element, so it scales with the word and stays correct at
+   every clamp step (-3.7px at the 48px floor). The box grows leftwards into
+   .ab-pad's 40px padding, which has room for it at every size, and the right
+   edge does not move. Re-measure the bearing if the face or weight changes. */
+.ab-hero-word {
+  display: block;
+  font-size: 1.15em;
+  line-height: 0.77;
+  margin-left: -0.0663em;
+}
+
+/* Video inside the words "DotDotDot." ------------------------------------
+   A background cannot be a video, so background-clip:text is out. Instead a
+   white cover sits over the video with the letterforms knocked out of it by
+   an SVG mask, so the video only shows through the glyphs. Native SVG
+   masking, not CSS mask-image, because Safari's support for url(#id) in
+   -webkit-mask has been unreliable.
+
+   The cover is painted var(--ab-bg): if that ever stops matching the page
+   background the knockout will show as a visible white slab.
+
+   "The" is a second <text> painted on top of the cover, so it stays solid
+   and the video shows through "DotDotDot." only. Keeping it inside the same
+   SVG rather than as sibling HTML means the two stacked lines are positioned
+   in viewBox units and scale as one lockup, instead of two CSS line-heights
+   that have to be kept in step.
+
+   Sized in em off .ab-title--hero's clamp, so it scales with the heading
+   rather than needing its own set of breakpoints. These two must stay in the
+   same ratio as the viewBox (861 x 200) or the SVG letterboxes:
+     5.38125 = 861/160 — "DotDotDot." at 184px in Inter 500 at -0.03em
+                          (advance 860.6), rounded up.
+     1.25    = 200/160 — "The"'s 54 baseline + a 10px gap + the big word's
+                          133.9 cap height + 2 for the full stop's overshoot.
+   Both em values are still against the 160px heading, not the 184px word --
+   the word being 15% larger is baked into the viewBox, not into these.
+   Re-measure all of it if a word, a weight or the tracking changes. */
+.ab-videotext {
+  position: relative;
+  display: block;
+  width: 5.38125em;
+  height: 1.25em;
+  max-width: 100%;
+  /* Shows through the glyphs if the video is missing, blocked or still
+     loading, so the title reads as near-black text rather than vanishing. */
+  background: var(--ab-fg);
+}
+
+.ab-videotext__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ab-videotext__svg { position: relative; display: block; width: 100%; height: 100%; }
+
+/* As CSS rules rather than presentation attributes: var() inside a
+   presentation attribute is not reliably supported outside Chrome, and a
+   failed fill here means an invisible title.
+
+   Deliberately not a `.ab-videotext__svg text` group rule: that scores
+   (0,1,1) and would beat the single-class rule below, so "The" would silently
+   render in Inter at 160px. Each <text> carries its own full set. */
+/* 184px = 160 x 1.15. letter-spacing tracks it: -0.03em of 184. */
+.ab-videotext__knockout {
+  fill: #000;
+  font-family: var(--ab-font);
+  font-size: 184px;
+  font-weight: 500;
+  letter-spacing: -5.52px;
+}
+
+/* Still 68px -- "The" did not grow with the big word. Against the 160px
+   heading that is the same 0.425 ratio as .ab-hero-the. */
+.ab-videotext__the {
+  fill: var(--ab-fg);
+  font-family: var(--ab-display);
+  font-size: 68px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.ab-videotext__cover { fill: var(--ab-bg); }
+.ab-videotext__field { fill: #fff; }
+
+.ab-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Decorative motion. Hiding the element also stops the decode, which the
+   global transition/animation reset does not cover for <video>. */
+@media (prefers-reduced-motion: reduce) {
+  .ab-videotext__video { display: none; }
+}
+
+/* No max-width, deliberately. The default page_lede measures 809px at 17px/600,
+   so a 40rem (640px) cap was the only thing breaking it onto a second line.
+   Unclamped it sets on one line from 1024px up, where the hero column gives it
+   974px -- 165px of slack. Weight costs width: the same sentence is 790.3 at
+   400 and 800.0 at 500, so going heavier again is affordable, but lengthening
+   the sentence is what would actually break the single line.
+
+   It is NOT nowrap: at 768px there are only 720px of column, and on a phone
+   ~270px, so 92 characters physically cannot be one line. nowrap there would
+   push the page into horizontal scroll. Wrapping is the correct behaviour
+   below 1024 -- so keep the lede short enough to hold one line on desktop
+   rather than trying to force it.
+
+   600 is a real instance: Inter is loaded as a variable face at 100-900, so
+   nothing here is a synthesised bold. */
+.ab-lede {
+  margin-top: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 28px;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+/* Featured post ----------------------------------------------------------- */
+
+/* The image bleeds to the rules, so the wrap can carry no vertical padding at
+   all -- the inset moved onto __body, which is the only child that still needs
+   it. Same for the grid gap on mobile: the body's own padding provides the
+   space under the image, so a gap here would double it. */
+.ab-featured-wrap { padding-top: 0; padding-bottom: 0; }
+
+.ab-featured { display: grid; grid-template-columns: 1fr; gap: 0; align-items: stretch; }
+
+.ab-featured__body { padding: 24px 24px 40px; align-self: center; }
+
+@media (min-width: 768px) {
+  .ab-featured { grid-template-columns: 1.15fr 1fr; gap: 40px; }
+  .ab-featured__body { padding: 40px 24px; }
+}
+
+/* Full bleed, square corners.
+   min-height rather than height: it fixes the block's size as asked, but leaves
+   the media free to stretch past it if a long title/excerpt ever makes the body
+   column the taller of the two. With a plain height the image would stay put and
+   come away from the rules exactly when the block grew.
+   That also needs align-items: stretch above (was center) plus align-self:center
+   on the body, so only the media fills the row.
+   No aspect-ratio any more -- min-height governs, and object-fit: cover on the
+   img does the cropping. */
+.ab-featured__media {
+  display: grid;
+  min-height: 260px;
+  border-radius: 0;
+  background: var(--ab-tint);
+  overflow: hidden;
+  margin-inline: calc(var(--ab-pad-x) * -1);
+}
+
+/* Two columns from here, so the image only bleeds left -- its right edge is the
+   gutter against the text. */
+@media (min-width: 768px) {
+  .ab-featured__media { min-height: 360px; margin-right: 0; }
+}
+
+@media (min-width: 1024px) {
+  .ab-featured__media { min-height: 420px; }
+}
+
+/* The parent is display:grid purely so this stretches. Its height comes from a
+   min-height, and a percentage height against that is not reliably resolvable —
+   grid stretch fills the box without depending on it. */
+.ab-featured__media img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ab-featured:hover .ab-featured__media img { transform: scale(1.03); }
+
+.ab-featured__title {
+  font-size: 26px;
+  line-height: 34px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h2);
+  margin-bottom: 12px;
+}
+
+@media (min-width: 1024px) {
+  .ab-featured__title { font-size: 32px; line-height: 40px; }
+}
+
+.ab-featured:hover .ab-featured__title { color: var(--ab-primary); }
+
+.ab-featured__excerpt {
+  font-size: 15px;
+  line-height: 24px;
+  color: rgba(15, 15, 15, 0.6);
+  margin-bottom: 20px;
+}
+
+/* Filter bar -------------------------------------------------------------- */
+
+.ab-listing { padding-top: 48px; padding-bottom: 72px; }
+
+.ab-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--ab-border);
+}
+
+.ab-filter { display: flex; flex-direction: column; gap: 12px; }
+
+.ab-filter__label {
+  font-family: var(--ab-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.ab-filter__row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* From tablet up both facets share a single line, each label inline with its own
+   chips. Below 768px they fall back to the stacked layout above -- two columns of
+   chips on a phone would leave each one only a couple of words wide.
+
+   768px, not 1024px: this matches .ab-cards going 2-up, so the filter bar and the
+   grid change shape at the same width instead of at two different ones.
+
+   Baseline alignment, not center: the labels are 11px mono and the chips are 13px
+   in a padded pill, so centring leaves the caption sitting visibly high. Baseline
+   puts the two lots of text on the same line. Each .ab-filter keeps flex-wrap so
+   a long chip list wraps under its own label rather than shoving the other facet
+   off the row. */
+@media (min-width: 768px) {
+  .ab-filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px 28px;
+  }
+
+  .ab-filter {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .ab-filter__label { white-space: nowrap; }
+}
+
+.ab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: var(--ab-chip);
+  padding: 8px 16px;
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(15, 15, 15, 0.7);
+  transition: background 0.15s, color 0.15s;
+}
+
+.ab-chip:hover { background: #ebebeb; color: var(--ab-fg); }
+
+.ab-chip.is-active { background: var(--ab-fg); color: #fff; }
+.ab-chip.is-active:hover { background: var(--ab-fg); color: #fff; }
+
+.ab-chip__count { font-family: var(--ab-mono); font-size: 11px; opacity: 0.55; }
+
+/* Results ----------------------------------------------------------------- */
+
+.ab-empty {
+  padding: 56px 0;
+  text-align: center;
+  font-size: 15px;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.ab-more-wrap { display: flex; justify-content: center; margin-top: 48px; }
+
+.ab-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.ab-pager__count { font-size: 13px; color: rgba(15, 15, 15, 0.5); }
+
+/* --------------------------------------------------------------------------
+   FOOTER
+   -------------------------------------------------------------------------- */
+
+.ab-footer { background: var(--ab-footer); color: #fff; }
+
+.ab-footer__inner {
+  max-width: var(--ab-container);
+  margin-inline: auto;
+  padding: 56px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ab-footer__logo { font-size: 18px; font-weight: 600; letter-spacing: var(--ab-track-title); }
+
+.ab-footer__tagline {
+  margin-top: 12px;
+  max-width: 320px;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.ab-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  font-size: 14px;
+}
+
+.ab-footer__links a { color: rgba(255, 255, 255, 0.65); transition: color 0.15s; }
+.ab-footer__links a:hover { color: #fff; }
+
+.ab-footer__bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Child combinator, not a descendant selector: the copyright line contains a
+   nested <span id="ab-year">, which would otherwise also go display:block and
+   break the line into three. */
+.ab-footer__bar > span {
+  display: block;
+  max-width: var(--ab-container);
+  margin-inline: auto;
+  padding: 20px 24px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+@media (min-width: 1024px) {
+  .ab-footer__inner,
+  .ab-footer__bar > span {
+    width: min(var(--ab-container), calc(100% - 48px));
+    max-width: none;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   ARTICLE BODY
+   Styles whatever plain HTML the blog editor produces. Ported 1:1 from the
+   .prose-abacus rules on goabacus.co.
+   -------------------------------------------------------------------------- */
+
+.prose-abacus { -webkit-user-select: text; user-select: text; }
+
+.prose-abacus h2 {
+  margin: 48px 0 16px;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h2);
+  color: var(--ab-fg);
+  scroll-margin-top: 96px;
+}
+
+.prose-abacus h3 {
+  margin: 32px 0 12px;
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h3);
+  color: var(--ab-fg);
+  scroll-margin-top: 96px;
+}
+
+.prose-abacus h4 {
+  margin: 24px 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ab-fg);
+}
+
+.prose-abacus > *:first-child { margin-top: 0; }
+
+.prose-abacus p {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 28px;
+  color: rgba(15, 15, 15, 0.8);
+}
+
+.prose-abacus ul { margin: 0 0 20px; padding-left: 24px; list-style-type: disc; }
+.prose-abacus ol { margin: 0 0 20px; padding-left: 24px; list-style-type: decimal; }
+
+.prose-abacus li {
+  margin-bottom: 8px;
+  font-size: 16px;
+  line-height: 28px;
+  color: rgba(15, 15, 15, 0.8);
+}
+
+.prose-abacus blockquote {
+  margin: 24px 0;
+  padding-left: 20px;
+  border-left: 4px solid rgba(124, 106, 239, 0.4);
+  font-style: italic;
+  color: rgba(15, 15, 15, 0.7);
+}
+
+.prose-abacus strong { font-weight: 600; color: var(--ab-fg); }
+
+.prose-abacus a {
+  color: var(--ab-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.prose-abacus a:hover { opacity: 0.8; }
+
+.prose-abacus img { border-radius: 12px; margin: 24px 0; }
+
+.prose-abacus figcaption {
+  margin-top: -12px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: rgba(15, 15, 15, 0.5);
+}
+
+.prose-abacus table {
+  width: 100%;
+  margin: 24px 0;
+  border: 1px solid var(--ab-border);
+  border-radius: 8px;
+  border-collapse: collapse;
+  overflow: hidden;
+  font-size: 15px;
+}
+
+.prose-abacus thead { background: var(--ab-tint); }
+
+.prose-abacus th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--ab-fg);
+  border-bottom: 1px solid var(--ab-border);
+}
+
+.prose-abacus td {
+  padding: 12px 16px;
+  color: rgba(15, 15, 15, 0.8);
+  border-bottom: 1px solid var(--ab-border);
+}
+
+.prose-abacus hr { border: none; border-top: 1px solid var(--ab-border); margin: 32px 0; }
+
+.prose-abacus code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--ab-tint);
+  color: var(--ab-fg);
+  font-family: var(--ab-mono);
+  font-size: 14px;
+}
+
+.prose-abacus pre {
+  margin: 24px 0;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--ab-fg);
+  color: var(--ab-bg);
+  font-size: 14px;
+  line-height: 22px;
+  overflow-x: auto;
+}
+
+.prose-abacus pre code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   MOTION / PRINT
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ab * { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  .ab-nav, .ab-subnav, .ab-rail, .ab-footer, .ab-related, .ab-back { display: none !important; }
+  .ab-article { max-width: none; }
+}
+
+/* ==========================================================================
+   COMPARISON PAGE — comparison-page.html
+   --------------------------------------------------------------------------
+   A port of the "Go Abacus vs. [Competitor]" mockup onto the tokens above.
+   Nothing here introduces a new colour, font or breakpoint: every section
+   composes the same shell the blog uses --
+
+     <section class="ab-rule ab-rule--top">
+       <div class="ab-container ab-container--ruled">
+         <span class="ab-dot ab-dot--tl"></span><span class="ab-dot ab-dot--tr"></span>
+         <div class="ab-pad ab-sec"> ... </div>
+
+   -- so the 1200px column, the hairline side rules and the corner dots come
+   for free, and all of it switches off together at the 1024px breakpoint.
+
+   The mockup's 780px grid breakpoint is kept as-is rather than snapped to the
+   768px used elsewhere: it is the width at which its three-up and two-column
+   grids actually start to look cramped, and it is the only place in the file
+   that uses it.
+   ========================================================================== */
+
+/* Anchor targets sit under two sticky bars: the 64px header plus the 48px
+   sub-nav. 124px clears both with 12px to spare. */
+.ab-rule[id] { scroll-margin-top: 124px; }
+
+/* There is deliberately no `scroll-behavior: smooth` here. HubSpot's CSS
+   compiler rejects the ENTIRE FILE on that property -- bisected 2026-09-16 --
+   and reports it only as "Error: Error", with no line number and no hint that
+   one declaration is responsible. scroll-margin-top above compiles fine, so
+   anchor jumps still land clear of the sticky bars; they are just instant.
+   Do not add it back. See README, Notes / possible gotchas. */
+
+/* Section rhythm ---------------------------------------------------------- */
+
+.ab-sec { padding-top: 48px; padding-bottom: 48px; }
+
+@media (min-width: 1024px) {
+  .ab-sec { padding-top: 72px; padding-bottom: 72px; }
+}
+
+.ab-sec__head { max-width: 62ch; }
+
+.ab-sec__title {
+  font-size: clamp(28px, 3.4vw, 34px);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h2);
+}
+
+.ab-sec__sub {
+  margin-top: 14px;
+  font-size: 17px;
+  line-height: 28px;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+/* Hero -------------------------------------------------------------------- */
+
+/* The section itself carries .ab-rule--dark, so it meets the sticky header
+   with no seam and re-points --ab-fg/--ab-bg/--ab-border for everything
+   inside it. That also means .ab-rule--dark .ab-pad { --ab-pad-x: 0 } applies
+   above 1024 and the hero sits hard on the column, exactly as the blog
+   listing hero does. */
+.ab-cmp-head {
+  padding-top: 56px;
+  padding-bottom: 56px;
+  animation: ab-rise 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@media (min-width: 1024px) {
+  .ab-cmp-head { padding-top: 96px; padding-bottom: 80px; }
+}
+
+/* Covered by the existing prefers-reduced-motion reset: `.ab *` matches this
+   element and sets animation: none !important. */
+@keyframes ab-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* The competitor's own mark, optional. Height-constrained rather than
+   width-constrained because logos arrive at wildly different aspect ratios. */
+.ab-cmp-head__logo { height: 28px; width: auto; margin-bottom: 20px; }
+
+/* .ab-lede deliberately has no max-width — the listing hero wants it running
+   the full column. Here it is a paragraph of prose, so it gets the mockup's
+   measure back, and Medium rather than the shared 600: this is the one place
+   .ab-lede sits on a dark band, where 600 reads as bold.
+   Two classes (0,2,0) beats .ab-lede (0,1,0), and scoping it here leaves the
+   blog listing's page header alone. */
+.ab-cmp-head .ab-lede { max-width: 60ch; font-weight: 500; }
+
+.ab-cmp-head__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+
+/* Sticky section nav ------------------------------------------------------ */
+
+/* top: 64px = the height of .ab-nav__inner, so this parks directly under the
+   header. z-index below the header's 50 so the header always wins the overlap. */
+.ab-subnav {
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+  background: var(--ab-chip);
+  border-bottom: 1px solid var(--ab-border);
+}
+
+/* The bar already draws a hairline, so the section under it must not draw a
+   second one — they stack into a visible 2px rule while the bar is unstuck. */
+.ab-subnav + .ab-rule--top { border-top: 0; }
+
+.ab-subnav__inner {
+  max-width: var(--ab-container);
+  margin-inline: auto;
+  height: 48px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.ab-subnav__inner::-webkit-scrollbar { display: none; }
+
+/* Same box formula and transparent inline border as .ab-nav__inner, so the
+   first link lands on the same pixel as the logo above it and the article
+   column below it. */
+@media (min-width: 1024px) {
+  .ab-subnav__inner {
+    width: min(var(--ab-container), calc(100% - 48px));
+    max-width: none;
+    padding: 0;
+    border-inline: 1px solid transparent;
+  }
+}
+
+.ab-subnav__link {
+  font-family: var(--ab-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(15, 15, 15, 0.5);
+  transition: color 0.15s;
+}
+
+.ab-subnav__link:hover { color: var(--ab-fg); }
+.ab-subnav__link.is-active { color: var(--ab-primary); }
+
+/* Pain points ------------------------------------------------------------- */
+
+.ab-trio { display: grid; grid-template-columns: 1fr; gap: 36px; margin-top: 40px; }
+
+@media (min-width: 780px) {
+  .ab-trio { grid-template-columns: repeat(3, 1fr); gap: 40px; }
+}
+
+.ab-trio:not(:has(.ab-trio__item)) { display: none; }
+
+/* lucide icons, drawn at a 24 viewBox and scaled up — the mockup's bespoke
+   40px drawings are replaced so the line weight matches the icons already in
+   the post header and the sidebar CTA. */
+.ab-trio__icon { width: 32px; height: 32px; color: var(--ab-primary); }
+
+.ab-trio__title {
+  margin-top: 20px;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h3);
+}
+
+.ab-trio__body {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 24px;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+/* Comparison table -------------------------------------------------------- */
+
+/* Deliberately mirrors .prose-abacus table (8px radius, tinted thead, 1px row
+   rules) so a table written in a blog post and this one read as the same
+   component. The radius needs the overflow on this wrapper to clip it —
+   border-collapse: collapse ignores border-radius on the table itself. */
+.ab-compare__scroll {
+  margin-top: 40px;
+  border: 1px solid var(--ab-border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.ab-compare {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.ab-compare th,
+.ab-compare td {
+  padding: 14px 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--ab-border);
+}
+
+.ab-compare thead th {
+  background: var(--ab-tint);
+  font-weight: 600;
+  color: var(--ab-fg);
+}
+
+.ab-compare td { color: rgba(15, 15, 15, 0.8); }
+
+/* The row header is the capability name — a <th scope="row">, not a <td>, so
+   screen readers announce it with each cell. */
+.ab-compare th[scope="row"] {
+  width: 26%;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+/* The Go.AI column. The mockup used a 2px navy LEFT border down the column;
+   a tinted column capped with a 2px primary top edge reads the same but does
+   not fight the row rules at every intersection. inset box-shadow rather than
+   border-top because a border would shift that one cell's content by 2px
+   against its neighbours under border-collapse. */
+.ab-compare th:nth-child(2),
+.ab-compare td:nth-child(2) { background: var(--ab-tint); }
+
+.ab-compare thead th:nth-child(2) { box-shadow: inset 0 2px 0 var(--ab-primary); }
+
+.ab-compare td:nth-child(2) { color: var(--ab-fg); }
+
+/* Empty slots are simply not emitted, so whichever row happens to be last
+   loses its rule and the wrapper's own border finishes the box. */
+.ab-compare tbody tr:last-child > * { border-bottom: 0; }
+
+/* Deep dives -------------------------------------------------------------- */
+
+.ab-dive { margin-top: 40px; }
+.ab-dive:not(:has(.ab-dive__item)) { display: none; }
+
+.ab-dive__item {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--ab-border);
+}
+
+/* :first-child / :last-child rather than a count: unfilled slots render no
+   element at all, so whichever items survive get the outer rules. */
+.ab-dive__item:first-child { border-top: 1px solid var(--ab-border); }
+.ab-dive__item:last-child { border-bottom: 0; }
+
+@media (min-width: 780px) {
+  .ab-dive__item { grid-template-columns: 1fr 1.6fr; gap: 32px; padding: 40px 0; }
+}
+
+.ab-dive__title {
+  max-width: 20ch;
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h3);
+}
+
+.ab-dive__body { font-size: 17px; line-height: 28px; color: var(--ab-fg); }
+
+.ab-dive__desc {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 24px;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+/* Mid-page CTA band ------------------------------------------------------- */
+
+/* The rule above the band belongs to the band, not to the deep-dive list: the
+   list always drops the bottom border off its last item, so when the band is
+   left blank the section closes cleanly instead of on a dangling hairline. */
+.ab-band {
+  padding-top: 56px;
+  padding-bottom: 8px;
+  border-top: 1px solid var(--ab-border);
+  text-align: center;
+}
+
+.ab-band__title {
+  max-width: 30ch;
+  margin-inline: auto;
+  font-size: clamp(24px, 3vw, 30px);
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-h2);
+}
+
+.ab-band__cta { margin-top: 26px; }
+
+/* Integration tiles ------------------------------------------------------- */
+
+.ab-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 36px; }
+
+@media (min-width: 460px) { .ab-tiles { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 780px) { .ab-tiles { grid-template-columns: repeat(6, 1fr); gap: 14px; } }
+
+.ab-tiles:not(:has(.ab-tile)) { display: none; }
+
+.ab-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: 16px 10px;
+  border: 1px solid var(--ab-border);
+  border-radius: 8px;
+  background: var(--ab-tint);
+  text-align: center;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(15, 15, 15, 0.7);
+}
+
+.ab-tiles__cta { margin-top: 36px; }
+
+/* FAQ --------------------------------------------------------------------- */
+
+.ab-faq { margin-top: 32px; }
+.ab-faq:not(:has(.ab-faq__item)) { display: none; }
+
+.ab-faq__item { border-bottom: 1px solid var(--ab-border); }
+.ab-faq__item:first-child { border-top: 1px solid var(--ab-border); }
+
+/* list-style: none removes the disclosure triangle everywhere except older
+   WebKit, which needs the pseudo-element below. */
+.ab-faq__q {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: var(--ab-track-title);
+  transition: color 0.15s;
+}
+
+.ab-faq__q::-webkit-details-marker { display: none; }
+.ab-faq__q:hover { color: var(--ab-primary); }
+
+.ab-faq__plus { position: relative; flex-shrink: 0; width: 16px; height: 16px; }
+
+/* currentColor so the glyph follows the summary's hover colour. */
+.ab-faq__plus::before,
+.ab-faq__plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  transition: transform 0.15s;
+}
+
+.ab-faq__plus::before { left: 0; top: 7px; width: 100%; height: 2px; }
+.ab-faq__plus::after { top: 0; left: 7px; width: 2px; height: 100%; }
+
+.ab-faq__item[open] .ab-faq__plus::after { transform: scaleY(0); }
+
+.ab-faq__a {
+  padding-bottom: 24px;
+  max-width: 62ch;
+  font-size: 16px;
+  line-height: 26px;
+  color: rgba(15, 15, 15, 0.7);
+}
+
+/* Form section ------------------------------------------------------------ */
+
+/* Goes on the <section>, so the tint is full-bleed and the column rules draw
+   inside it — same arrangement as .ab-rule--dark. */
+.ab-formsec { background: var(--ab-tint); }
+
+.ab-formsec__grid { display: grid; grid-template-columns: 1fr; gap: 32px; margin-top: 40px; }
+
+@media (min-width: 780px) {
+  .ab-formsec__grid { grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
+}
+
+/* HubSpot's form embed generates its own markup and its own classes, and ships
+   inline widths and a stylesheet of its own. Everything below re-skins that
+   output; the !important flags are only where HubSpot sets the property
+   inline, which a stylesheet cannot otherwise beat.
+   All of it is scoped under .ab-formsec so no other embedded form on the
+   portal is affected. */
+.ab-formsec .hs-form fieldset { max-width: none !important; }
+.ab-formsec .hs-form fieldset .input { margin: 0 !important; }
+.ab-formsec .form-columns-2 .hs-form-field,
+.ab-formsec .form-columns-3 .hs-form-field { width: 100% !important; float: none; }
+
+.ab-formsec .hs-form-field { margin-bottom: 18px; }
+
+.ab-formsec .hs-form-field > label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(15, 15, 15, 0.6);
+}
+
+.ab-formsec .hs-form-required { margin-left: 2px; color: var(--ab-primary); }
+
+.ab-formsec .hs-field-desc { margin: 0 0 6px; font-size: 12px; line-height: 18px; color: rgba(15, 15, 15, 0.5); }
+
+.ab-formsec .hs-input {
+  width: 100% !important;
+  max-width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--ab-border);
+  border-radius: 8px;
+  background: var(--ab-bg);
+  color: var(--ab-fg);
+  font-family: var(--ab-font);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.ab-formsec .hs-input:focus { outline: 2px solid var(--ab-primary); outline-offset: 1px; }
+
+.ab-formsec textarea.hs-input { min-height: 96px; resize: vertical; }
+
+/* Checkboxes and radios must not inherit the 100% width above. */
+.ab-formsec .hs-input[type="checkbox"],
+.ab-formsec .hs-input[type="radio"] { width: auto !important; margin-right: 8px; }
+
+.ab-formsec .inputs-list { margin: 0; padding: 0; list-style: none; }
+.ab-formsec .hs-form-booleancheckbox-display,
+.ab-formsec .hs-form-checkbox-display,
+.ab-formsec .hs-form-radio-display { display: flex; align-items: flex-start; gap: 4px; font-size: 14px; }
+
+.ab-formsec .hs-error-msgs { margin-top: 6px; }
+.ab-formsec .hs-error-msg,
+.ab-formsec .hs-error-msgs label { font-size: 13px; color: #b3432b; }
+
+.ab-formsec .hs_submit .actions { margin: 8px 0 0; padding: 0; }
+
+/* The submit control is an <input type="submit">, so it cannot use .ab-btn's
+   inline-flex + gap. Restated here to the same geometry as .ab-btn--dark. */
+.ab-formsec .hs-button {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 24px;
+  background: #0f0f0f;
+  color: #fff;
+  font-family: var(--ab-font);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ab-formsec .hs-button:hover { opacity: 0.85; }
+
+/* Inline thank-you. Without this it inherits nothing and renders as bare
+   browser-default HTML on top of the tinted band. */
+.ab-formsec .submitted-message {
+  border: 1px solid var(--ab-border);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--ab-bg);
+  font-size: 15px;
+  line-height: 24px;
+  color: rgba(15, 15, 15, 0.8);
+}
+
+.ab-formsec .submitted-message > *:last-child { margin-bottom: 0; }
+.ab-formsec .submitted-message a { color: var(--ab-primary); text-decoration: underline; text-underline-offset: 4px; }

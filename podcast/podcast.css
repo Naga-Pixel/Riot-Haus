@@ -1,0 +1,341 @@
+/* ==========================================================================
+   AI, TO THE POINT — podcast page
+   Loaded AFTER abacus-blog.css, which it extends rather than replaces.
+
+   Only the page header differs from the blog listing: the "The DotDotDot."
+   hero is swapped for the podcast lockup (circular mark + two-line headline +
+   host line). Everything below it — cards, filters, footer — is the shared
+   stylesheet, untouched.
+   ========================================================================== */
+
+/* The italic companion to the Regular already declared in abacus-blog.css, and
+   the only thing on either page that uses it. Instanced from the brand's
+   variable italic (EightiesComback _Italic_VAR-VF.ttf) at wght 400 / wdth 90 —
+   wdth 90 is what that font names "Semi Condensed" — then subset to latin.
+
+   font-style: italic so the browser picks this face over the Regular rather
+   than slanting the Regular itself. Same Nicky Laatz licence caveat as the
+   Regular: confirm it covers self-hosted webfont use before this goes live. */
+@font-face {
+  font-family: "Eighties Comeback";
+  src: url("assets/EightiesComebackIt-SemiCond.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Every size in the lockup is an em of the headline, so the whole thing scales
+   from this one clamp and the proportions measured off the brand banner hold at
+   every width.
+
+   Every value here is the width-fitted maximum (112px / 8.4vw / 34px) taken
+   down 30%. The mark is an em of this, so it comes down with the type and the
+   lockup keeps its proportions — do not scale the mark separately.
+
+   That leaves the lockup ~800px wide at the cap, well inside the 1200px
+   container, so the fit is no longer what limits it. */
+.pod-hero {
+  --pod-size: clamp(24px, 5.9vw, 78px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4em;
+  font-size: var(--pod-size);
+}
+
+@media (min-width: 900px) {
+  .pod-hero {
+    flex-direction: row;
+    align-items: center;
+    /* 55/169 in the source banner: the gap is a property of the lockup, so it
+       tracks the headline rather than sitting at a fixed pixel value. */
+    gap: 0.325em;
+  }
+}
+
+/* 491/169 in the source banner. Sized in em and with flex-shrink off, so the
+   mark keeps its ratio to the type instead of being compressed by the flex row.
+   Smaller in the stacked layout, where it has no type beside it to balance. */
+.pod-hero__mark {
+  width: 2.1em;
+  height: auto;
+  flex: 0 0 auto;
+}
+
+@media (min-width: 900px) {
+  .pod-hero__mark { width: 2.905em; }
+}
+
+.pod-hero__text { min-width: 0; }
+
+/* font-size:1em inherits .pod-hero's clamp — this is the element every other
+   size in the lockup is measured against.
+
+   line-height 0.95 is solved from the banner: 161px between the two baselines
+   on a 169px body. Tracking is the page's own --ab-track-h1 rather than the
+   -0.02em measured off the artwork, so this heading sets like every other h1.
+
+   max-width:none clears .ab-title's 48rem cap, which would otherwise rewrap
+   the second line. */
+.pod-hero__title {
+  max-width: none;
+  margin: 0;
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: var(--ab-track-h1);
+  color: #f4efe9;
+}
+
+/* The two purple phrases are set in the display serif italic, against the
+   Inter Medium of the words around them.
+
+   --ab-primary is the purple card and featured titles take on hover, rather
+   than the slightly deeper --ab-accent the source banner uses. Same reasoning
+   as the tracking: the page's own colour rules win over the artwork.
+
+   letter-spacing is reset to normal: --ab-track-h1's -0.03em is a correction
+   for Inter at display sizes, and closing a serif italic up by that much runs
+   its exit strokes into the next letter. */
+.pod-hero__title .pod-accent {
+  font-family: var(--ab-display);
+  font-style: italic;
+  font-weight: 400;
+  /* Eighties Comeback's caps stand taller than Inter's at a shared font-size,
+     so 0.95 is what makes the two look the same size on the line. An em of the
+     headline, so it still rides the one --pod-size clamp. */
+  font-size: 0.95em;
+  letter-spacing: normal;
+  color: var(--ab-primary);
+}
+
+/* The descender of "Compliance"'s p lands on the ascender of "Podcast"'s d on
+   the line below. Leading is fixed by the lockup's proportions, so the two are
+   separated horizontally instead: the italic p's tail sits at the LEFT of its
+   advance and the d's stem at the RIGHT of its own, so pulling the first line
+   left and pushing the second right moves them apart, not together.
+
+   Both are em of the span, so the correction scales with --pod-size and the
+   collision can't come back at another viewport width. */
+.pod-hero__title .pod-accent:first-of-type { margin-left: -0.06em; }
+.pod-hero__title .pod-accent:last-of-type { margin-right: 0.07em; }
+
+/* 41/169 of the headline in the source banner.
+
+   margin-top resolves against THIS element's 0.2426em, not the headline's, so
+   it is not the 0.314em the banner measures between the second baseline and the
+   cap line of the credit. 0.68em of the credit is what puts it there, once the
+   headline's negative half-leading (line-height 0.95 against Inter's 1.2125
+   ascent+descent) is taken out of the gap.
+
+   This is the one piece of the lockup NOT in cream: it is purple in the source
+   banner, so it does not follow .ab-rule--dark .ab-eyebrow's muted white. Kept
+   on the same purple as the headline above it. */
+.pod-hero__host {
+  margin: 0.68em 0 0;
+  font-family: var(--ab-mono);
+  font-size: 0.2426em;
+  font-weight: 400;
+  line-height: 1;
+  /* .ab-eyebrow's 1.5px on 12px, as a ratio, so the page's one mono-caps
+     tracking rule holds here too. Wider than the artwork measures. */
+  letter-spacing: 0.125em;
+  text-transform: uppercase;
+  color: var(--ab-primary);
+}
+
+/* --------------------------------------------------------------------------
+   HEADER BACKGROUND VIDEO
+   -------------------------------------------------------------------------- */
+
+/* isolation makes this a stacking context, so the video's z-index: -1 is
+   measured against this band and not the page: it lands above the section's
+   own dark background but below the lockup. Without it the video would sit
+   behind the section background and never be seen. */
+.pod-band {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* object-fit: cover against inset: 0 — the band's height comes from the lockup
+   inside it, so the video has to crop to whatever shape that leaves.
+   Decorative only: aria-hidden and tabindex="-1" on the element, and
+   pointer-events: none so it never intercepts a click on the band. */
+.pod-band__video {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* A looping video behind text is exactly what this setting is for. The frame
+   that happens to be showing stays, so the band keeps its texture. */
+@media (prefers-reduced-motion: reduce) {
+  .pod-band__video { display: none; }
+}
+
+/* The lockup is the whole header, so the section does not need the extra
+   bottom padding .ab-list-head carries for the lede that used to sit there. */
+.pod-head { padding-bottom: 40px; }
+
+@media (min-width: 1024px) {
+  .pod-head { padding-bottom: 64px; }
+}
+
+/* --------------------------------------------------------------------------
+   BYLINE — date only
+   The author name and the separator dot are gone from every card, so the
+   byline is a calendar glyph plus a date. .ab-avatar is therefore unused on
+   this page; the rule still sits in abacus-blog.css for the blog templates.
+   -------------------------------------------------------------------------- */
+
+/* Stroked, so it inherits .ab-card__byline's muted colour rather than carrying
+   its own. flex-shrink guards it against a long date in a narrow card. */
+.ab-byline__icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   EPISODE SEARCH
+   Replaces the blog listing's two rows of Industry / Content type pills.
+   .ab-filters and .ab-chip are consequently unused on this page; both rules
+   stay in abacus-blog.css for the blog templates.
+   -------------------------------------------------------------------------- */
+
+/* Section heading on the left, field on the right. The divider and the spacing
+   down to the first card live here, not on .pod-search — they are the section
+   rule, so they have to run the whole column width while the field does not.
+   Wraps to two rows when the two no longer fit side by side. */
+.pod-listing-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 32px;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--ab-border);
+}
+
+.pod-listing-head__title {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: var(--ab-track-h1);
+}
+
+.pod-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 420px;
+}
+
+/* Below the point where title and field stop fitting side by side, drop the
+   field onto its own row and let it run the full width. Flexbox can't do this
+   on its own: a wrapped item still sizes to its flex-basis. */
+@media (max-width: 767px) {
+  .pod-search { flex-basis: 100%; }
+}
+
+/* Absolute rather than a flex sibling: the input is what the click target
+   should be, so it spans the full width and the glyph sits over its padding.
+   pointer-events:none keeps clicks falling through to the input. */
+.pod-search__icon {
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  color: rgba(15, 15, 15, 0.4);
+  pointer-events: none;
+}
+
+/* appearance:none strips the type=search styling WebKit otherwise imposes.
+   The type stays `search` for the native clear button and the on-screen
+   keyboard's search key. */
+.pod-search__input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--ab-border);
+  border-radius: 999px;
+  background: var(--ab-chip);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ab-fg);
+}
+
+.pod-search__input::placeholder { color: rgba(15, 15, 15, 0.45); }
+
+.pod-search__input:focus {
+  outline: none;
+  background: var(--ab-bg);
+  border-color: var(--ab-primary);
+}
+
+/* --------------------------------------------------------------------------
+   THUMBNAIL RATIO — 1/1
+   The artwork is a square guest card with the name set across the bottom, so
+   any landscape box would have object-fit: cover crop the name straight off.
+   Both slots take the artwork's own ratio instead. The blog stylesheet sizes
+   .ab-card__media at 16/10 and .ab-featured__media by a min-height
+   (260/360/420px); square overrides both.
+
+   On the featured block, aspect-ratio only governs when the height is auto,
+   and .ab-featured's align-items: stretch makes it the row's height — hence
+   align-self: center. min-height: 0 clears all three inherited values; these
+   rules come after abacus-blog.css, so equal specificity is enough to win,
+   media queries included.
+   -------------------------------------------------------------------------- */
+/* Square corners on both slots: abacus-blog.css rounds .ab-card__media to 12px,
+   which the podcast artwork's own hard edge fights. */
+.ab-card__media {
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+}
+
+.ab-featured__media {
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  align-self: center;
+}
+
+/* --------------------------------------------------------------------------
+   FEATURED THUMBNAIL — inset, square-cornered
+   In the blog design the featured image is full-bleed: it cancels .ab-pad with
+   margin-inline: calc(var(--ab-pad-x) * -1) and runs out to the column rules.
+   Here it sits inside the padding instead, so its left edge lines up with the
+   first card below it and it reads as one more thumbnail rather than a banner.
+
+   Zeroing the margin is what makes it narrower; the column split below takes
+   the rest of the width off it. Corners stay square (the cards' 12px radius is
+   deliberately not inherited here).
+   -------------------------------------------------------------------------- */
+.ab-featured__media {
+  margin-inline: 0;
+  border-radius: 0;
+}
+
+/* abacus-blog.css zeroes this block's vertical padding because the full-bleed
+   image used to run straight into the section rules above and below. Now that
+   it is inset on all four sides it needs the breathing room back. */
+.ab-featured-wrap { padding-block: 50px; }
+
+/* 1.15fr in the blog design, when the image was carrying the extra bleed width
+   as well. Even columns bring it closer to the size of a card. */
+@media (min-width: 768px) {
+  .ab-featured { grid-template-columns: 1fr 1fr; }
+
+  /* The body's own 24px gutters sat inside the full-bleed layout. With the
+     image inset they would push the copy off the container's right edge,
+     where the last card's text ends. The 40px top/bottom stay. */
+  .ab-featured__body { padding-inline: 0; }
+}
